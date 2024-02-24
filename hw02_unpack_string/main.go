@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"otus_golang_homework/hw02_unpack_string/hw02unpackstring"
+
+	"github.com/PrusovaIU/otus_golang_homework/hw02_unpack_string/hw02unpackstring"
 )
 
 func main() {
