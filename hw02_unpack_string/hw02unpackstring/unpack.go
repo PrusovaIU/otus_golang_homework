@@ -9,7 +9,7 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
-const backslachRegexp = `\\(.)`
+const backslachRegexp = `\\(.{1})`
 
 // Check format of string data.
 //
@@ -26,13 +26,22 @@ func check_data(data string) (err error) {
 }
 
 // Repetition symbols by regexp
-func repetition(s []byte) []byte {
-	var re *regexp.Regexp = regexp.MustCompile(`(\s|.+)(\d)`)
+func repetition(s []byte) (result []byte) {
+	var re *regexp.Regexp = regexp.MustCompile(`([^\\])(\\\\)(\d)`)
 	var groups []string = re.FindStringSubmatch(string(s))
-	var char []byte = []byte(groups[1])
-	amount, _ := strconv.Atoi(groups[2])
-	var result []byte = bytes.Repeat(char, amount)
-	return result
+	if len(groups) != 0 {
+		var char []byte = []byte(groups[2])
+		amount, _ := strconv.Atoi(groups[3])
+		var repeat []byte = bytes.Repeat(char, amount)
+		result = append([]byte(groups[1]), repeat...)
+	} else {
+		re = regexp.MustCompile(`(\s|.+)(\d)`)
+		groups = re.FindStringSubmatch(string(s))
+		var char []byte = []byte(groups[1])
+		amount, _ := strconv.Atoi(groups[2])
+		result = bytes.Repeat(char, amount)
+	}
+	return
 }
 
 // Replace backslash to ""
@@ -53,7 +62,8 @@ func Unpack(data string) (string, error) {
 	if err := check_data(data); err != nil {
 		return "", err
 	}
-	var re *regexp.Regexp = regexp.MustCompile(`([a-zA-Z\s]|\\[^$])(\d)`)
+	// data = strings.Replace(data, `\\`, `\`, -1)
+	var re *regexp.Regexp = regexp.MustCompile(`([a-zA-Z\s]|\\\d|[^\\]\\\\)(\d)`)
 	var formatted = re.ReplaceAllFunc([]byte(data), repetition)
 	re = regexp.MustCompile(backslachRegexp)
 	formatted = re.ReplaceAllFunc(formatted, replace_backslash)

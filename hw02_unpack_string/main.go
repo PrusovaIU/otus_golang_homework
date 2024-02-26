@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	data := [...]string{"a4bc2d5e", "abcd", "aaa0b", "d\n5abc", "qwe\\45", "qwe\\4\\5", "qwe\\\\5"}
+	data := [...]string{"a4bc2d5e", "abcd", "aaa0b", "d\n5abc", "qwe\\45", "qwe\\4\\5", "qwe\\\\5", `qwe\\\3`}
+	// data := [...]string{`qwe\\5`}
 	for i, el := range data {
 		formattedStr, _ := hw02unpackstring.Unpack(el)
 		fmt.Println(i, el, "=>", formattedStr)
