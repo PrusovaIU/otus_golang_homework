@@ -86,3 +86,10 @@ func TestRepetition(t *testing.T) {
 		})
 	}
 }
+
+func TestReplaceBackslace(t *testing.T) {
+	tested_string := []byte(`\4`)
+	expected_result := []byte("4")
+	result := replace_backslash(tested_string)
+	require.Equal(t, expected_result, result)
+}
