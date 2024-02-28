@@ -43,31 +43,10 @@ func TestUnpackInvalidString(t *testing.T) {
 	}
 }
 
-// func TestCheckDataSuccess(t *testing.T) {
-// 	validStrings := []string{
-// 		"a4bc2d5e",
-// 		"abccd",
-// 		"",
-// 		"aaa0b",
-// 		`qwe\4\5`,
-// 		`qwe\45`,
-// 		`qwe\\5`,
-// 		`qwe\\\3`,
-// 	}
-// 	for _, tc := range validStrings {
-// 		tc := tc
-// 		t.Run(tc, func(t *testing.T) {
-// 			err := check_data(tc)
-// 			require.NoError(t, err)
-// 		})
-// 	}
-// }
-
 func TestCheckData(t *testing.T) {
 	tests := []struct {
 		input string
-		// is_error	bool
-		err error
+		err   error
 	}{
 		{input: "a4bc2d5e", err: nil},
 		{input: "abccd", err: nil},
@@ -81,24 +60,29 @@ func TestCheckData(t *testing.T) {
 		{input: "45", err: ErrInvalidString},
 		{input: "aaa10b", err: ErrInvalidString},
 	}
-	// {
-	// 	{input: "a4bc2d5e", is_error: false},
-	// 	{input: "abccd", is_error: false},
-	// 	{input: "", is_error: false},
-	// 	{input: "aaa0b", is_error: false},
-	// 	{input: `qwe\4\5`, is_error: false},
-	// 	{input: `qwe\45`, is_error: false},
-	// 	{input: `qwe\\5`, is_error: false},
-	// 	{input: `qwe\\\3`, is_error: false},
-	// 	{input: "3abc", is_error: true},
-	// 	{input: "45", is_error: true},
-	// 	{input: "aaa10b", is_error: true},
-	// }
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.input, func(t *testing.T) {
 			err := check_data(tc.input)
 			require.Equal(t, tc.err, err)
+		})
+	}
+}
+
+func TestRepetition(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{input: `a\\2`, expected: `a\\\\`},
+		{input: "\t2", expected: "\t\t"},
+		{input: "a2", expected: "aa"},
+	}
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.input, func(t *testing.T) {
+			result := repetition([]byte(tc.input))
+			require.Equal(t, tc.expected, string(result))
 		})
 	}
 }
