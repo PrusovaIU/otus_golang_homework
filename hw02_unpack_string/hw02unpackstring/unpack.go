@@ -16,7 +16,7 @@ const backslachRegexp = `\\(.{1})`
 // A successful check_data returns err == nil.
 // Returns err == ErrInvalidString, if data is wrong format.
 func check_data(data string) (err error) {
-	res, err := regexp.MatchString(`^\d|[^\\]\d\d`, data)
+	res, err := regexp.MatchString(`^\d|[^\\]\d\d|\\[^\d\\]|\\$`, data)
 	if err != nil {
 		return err
 	} else if res {
@@ -62,8 +62,7 @@ func Unpack(data string) (string, error) {
 	if err := check_data(data); err != nil {
 		return "", err
 	}
-	// data = strings.Replace(data, `\\`, `\`, -1)
-	var re *regexp.Regexp = regexp.MustCompile(`([a-zA-Z\s]|\\\d|[^\\]\\\\)(\d)`)
+	var re *regexp.Regexp = regexp.MustCompile(`([^\\]|\\\d|[^\\]\\\\)(\d)`)
 	var formatted = re.ReplaceAllFunc([]byte(data), repetition)
 	re = regexp.MustCompile(backslachRegexp)
 	formatted = re.ReplaceAllFunc(formatted, replace_backslash)
