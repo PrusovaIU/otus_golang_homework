@@ -16,7 +16,7 @@ const backslachRegexp = `\\(.{1})`
 // A successful check_data returns err == nil.
 // Returns err == ErrInvalidString, if data is wrong format.
 func check_data(data string) (err error) {
-	res, err := regexp.MatchString(`^\d|[^\\]\d\d|\\[^\d\\]|\\$`, data)
+	res, err := regexp.MatchString(`^\d|[^\\]\d\d|\\\\\d\d|\\[^\d\\]|\\$`, data)
 	if err != nil {
 		return err
 	} else if res {
