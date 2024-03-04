@@ -1,6 +1,7 @@
 package hw03frequencyanalysis
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -79,4 +80,24 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+}
+
+func TestMain(t *testing.T) {
+	a := Top10(`cat and dog, one dog,two cats and one man, or something,not dog - dog is not a cat:cat is not a dog`)
+	print(a)
+}
+
+func TestFrequencyRange(t *testing.T) {
+	input := map[string]int{
+		`a`: 4,
+		`b`: 3,
+		`c`: 4,
+	}
+	excepted := map[int][]string{
+		4: {`a`, `c`},
+		3: {`b`},
+	}
+	result := frequency_range(input)
+	equil := reflect.DeepEqual(result, excepted)
+	require.True(t, equil)
 }
