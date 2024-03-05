@@ -19,8 +19,8 @@ import (
 // 	return result
 // }
 
-func keys(_map map[string]int) []string {
-	var keys []string = make([]string, 0, len(_map))
+func keys(_map map[int][]string) []int {
+	var keys []int = make([]int, 0, len(_map))
 
 	for key := range _map {
 		keys = append(keys, key)
@@ -28,15 +28,15 @@ func keys(_map map[string]int) []string {
 	return keys
 }
 
-func mapSort(sortable_map map[string]int) []string {
-	var map_keys []string = keys(sortable_map)
+// func mapSort(sortable_map map[string]int) []string {
+// 	var map_keys []string = keys(sortable_map)
 
-	sort.SliceStable(map_keys, func(i, j int) bool {
-		return sortable_map[map_keys[i]] > sortable_map[map_keys[j]]
-	})
+// 	sort.SliceStable(map_keys, func(i, j int) bool {
+// 		return sortable_map[map_keys[i]] > sortable_map[map_keys[j]]
+// 	})
 
-	return map_keys
-}
+// 	return map_keys
+// }
 
 func frequency_range(frequency map[string]int) map[int][]string {
 	frequency_ranging := make(map[int][]string)
@@ -53,17 +53,37 @@ func frequency_range(frequency map[string]int) map[int][]string {
 	return frequency_ranging
 }
 
+func top(frequency_range map[int][]string) []string {
+	top_len := 10
+	var top []string
+
+	var map_keys []int = keys(frequency_range)
+	sort.Sort(sort.Reverse(sort.IntSlice(map_keys)))
+
+	for _, key := range map_keys {
+		var words []string = frequency_range[key]
+		sort.Strings(words)
+		if free_places_count := top_len - len(top); free_places_count < len(words) {
+			top = append(top, words[0:free_places_count]...)
+			return top
+		} else {
+			top = append(top, words...)
+		}
+	}
+	return top
+}
+
 func Top10(data string) []string {
 	var re *regexp.Regexp = regexp.MustCompile(`[.,!?":;\()+=\s] ?`)
 	var words []string = re.Split(data, -1)
-	top := make(map[string]int, len(words))
+	frequency := make(map[string]int, len(words))
 	for _, word := range words {
 		if word != `-` {
 			word := strings.ToLower(word)
-			top[word] += 1
+			frequency[word] += 1
 		}
 	}
-	_top := mapSort(top)
-	print(_top)
-	return words
+	var frequency_range map[int][]string = frequency_range(frequency)
+
+	return top(frequency_range)
 }

@@ -101,3 +101,29 @@ func TestFrequencyRange(t *testing.T) {
 	equil := reflect.DeepEqual(result, excepted)
 	require.True(t, equil)
 }
+
+func TestTop(t *testing.T) {
+	input := map[int][]string{
+		3: {`a`, `b`},
+		1: {`c`},
+		2: {`e`, `d`},
+		7: {`f`, `g`},
+		5: {`h`, `k`, `j`},
+		4: {`n`, `m`, `l`},
+	}
+	expect := []string{
+		`f`,
+		`g`,
+		`h`,
+		`j`,
+		`k`,
+		`l`,
+		`m`,
+		`n`,
+		`a`,
+		`b`,
+	}
+	result := top(input)
+	require.Equal(t, result, expect)
+	print(result)
+}
