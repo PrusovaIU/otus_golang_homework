@@ -8,7 +8,7 @@ import (
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -82,11 +82,6 @@ func TestTop10(t *testing.T) {
 	})
 }
 
-func TestMain(t *testing.T) {
-	a := Top10(`cat and dog, one dog,two cats and one man, or something,not dog - dog is not a cat:cat is not a dog`)
-	print(a)
-}
-
 func TestFrequencyRange(t *testing.T) {
 	input := map[string]int{
 		`a`: 4,
@@ -98,32 +93,59 @@ func TestFrequencyRange(t *testing.T) {
 		3: {`b`},
 	}
 	result := frequency_range(input)
-	equil := reflect.DeepEqual(result, excepted)
-	require.True(t, equil)
+	for key, value := range result {
+		equil := reflect.DeepEqual(value, excepted[key])
+		require.True(t, equil)
+	}
 }
 
 func TestTop(t *testing.T) {
-	input := map[int][]string{
-		3: {`a`, `b`},
-		1: {`c`},
-		2: {`e`, `d`},
-		7: {`f`, `g`},
-		5: {`h`, `k`, `j`},
-		4: {`n`, `m`, `l`},
+	cases := []struct {
+		name     string
+		input    map[int][]string
+		excepted []string
+	}{
+		{
+			name: `full`,
+			input: map[int][]string{
+				3: {`a`, `b`},
+				1: {`c`},
+				2: {`e`, `d`},
+				7: {`f`, `g`},
+				5: {`h`, `k`, `j`},
+				4: {`n`, `m`, `l`},
+			},
+			excepted: []string{
+				`f`, `g`, `h`, `j`, `k`, `l`, `m`, `n`, `a`, `b`,
+			},
+		},
+		{
+			name: `short_block`,
+			input: map[int][]string{
+				2: {`a`, `b`},
+			},
+			excepted: []string{
+				`a`, `b`,
+			},
+		},
+		{
+			name: `overflow`,
+			input: map[int][]string{
+				5: {`a`, `b`, `c`, `d`, `e`},
+				4: {`f`, `g`},
+				3: {`h`, `i`, `j`, `k`, `l`},
+			},
+			excepted: []string{
+				`a`, `b`, `c`, `d`, `e`, `f`, `g`, `h`, `i`, `j`,
+			},
+		},
 	}
-	expect := []string{
-		`f`,
-		`g`,
-		`h`,
-		`j`,
-		`k`,
-		`l`,
-		`m`,
-		`n`,
-		`a`,
-		`b`,
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			result := top(tc.input)
+			require.Equal(t, tc.excepted, result)
+		})
 	}
-	result := top(input)
-	require.Equal(t, result, expect)
-	print(result)
 }

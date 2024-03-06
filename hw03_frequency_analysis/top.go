@@ -60,12 +60,11 @@ func top(frequency_range map[int][]string) []string {
 	var map_keys []int = keys(frequency_range)
 	sort.Sort(sort.Reverse(sort.IntSlice(map_keys)))
 
-	for _, key := range map_keys {
-		var words []string = frequency_range[key]
+	for i := 0; len(top) < top_len && i < len(map_keys); i++ {
+		var words []string = frequency_range[map_keys[i]]
 		sort.Strings(words)
 		if free_places_count := top_len - len(top); free_places_count < len(words) {
 			top = append(top, words[0:free_places_count]...)
-			return top
 		} else {
 			top = append(top, words...)
 		}
@@ -78,7 +77,7 @@ func Top10(data string) []string {
 	var words []string = re.Split(data, -1)
 	frequency := make(map[string]int, len(words))
 	for _, word := range words {
-		if word != `-` {
+		if word != `-` && word != `` {
 			word := strings.ToLower(word)
 			frequency[word] += 1
 		}
