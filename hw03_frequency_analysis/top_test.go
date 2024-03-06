@@ -92,7 +92,7 @@ func TestFrequencyRange(t *testing.T) {
 		4: {`a`, `c`},
 		3: {`b`},
 	}
-	result := frequency_range(input)
+	result := frequencyRange(input)
 	for key, value := range result {
 		equil := reflect.DeepEqual(value, excepted[key])
 		require.True(t, equil)
