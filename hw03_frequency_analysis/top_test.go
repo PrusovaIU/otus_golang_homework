@@ -82,6 +82,13 @@ func TestTop10(t *testing.T) {
 	})
 }
 
+func TestDash(t *testing.T) {
+	input := `a --- b - j -`
+	expected := []string{`---`, `a`, `b`, `j`}
+	result := Top10(input)
+	require.Equal(t, expected, result)
+}
+
 func TestFrequencyRange(t *testing.T) {
 	input := map[string]int{
 		`a`: 4,
