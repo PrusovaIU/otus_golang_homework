@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Get keys of map
 func keys(_map map[int][]string) []int {
 	keys := make([]int, 0, len(_map))
 
@@ -15,6 +16,7 @@ func keys(_map map[int][]string) []int {
 	return keys
 }
 
+// Convert map {word: frequency} to {frequency: [words]}
 func frequencyRange(frequency map[string]int) map[int][]string {
 	frequencyRanging := make(map[int][]string)
 	for key, value := range frequency {
@@ -30,6 +32,13 @@ func frequencyRange(frequency map[string]int) map[int][]string {
 	return frequencyRanging
 }
 
+// form top 10 words from frequencyRange
+//
+// frequencyRange - rank of words for frequency of using:
+//
+//	{count_of_using: [words]}
+//
+// return: top of words
 func top(frequencyRange map[int][]string) []string {
 	topLen := 10
 	var top []string
@@ -49,6 +58,7 @@ func top(frequencyRange map[int][]string) []string {
 	return top
 }
 
+// Form list of 10 most used words from data
 func Top10(data string) []string {
 	re := regexp.MustCompile(`[.,!?":;\()+=\s] ?`)
 	words := re.Split(data, -1)
