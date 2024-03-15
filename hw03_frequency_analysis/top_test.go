@@ -1,13 +1,14 @@
 package hw03frequencyanalysis
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -79,4 +80,79 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+}
+
+func TestDash(t *testing.T) {
+	input := `a --- b - j -`
+	expected := []string{`---`, `a`, `b`, `j`}
+	result := Top10(input)
+	require.Equal(t, expected, result)
+}
+
+func TestFrequencyRange(t *testing.T) {
+	input := map[string]int{
+		`a`: 4,
+		`b`: 3,
+		`c`: 4,
+	}
+	excepted := map[int][]string{
+		4: {`a`, `c`},
+		3: {`b`},
+	}
+	result := frequencyRange(input)
+	for key, value := range result {
+		equil := reflect.DeepEqual(value, excepted[key])
+		require.True(t, equil)
+	}
+}
+
+func TestTop(t *testing.T) {
+	cases := []struct {
+		name     string
+		input    map[int][]string
+		excepted []string
+	}{
+		{
+			name: `full`,
+			input: map[int][]string{
+				3: {`a`, `b`},
+				1: {`c`},
+				2: {`e`, `d`},
+				7: {`f`, `g`},
+				5: {`h`, `k`, `j`},
+				4: {`n`, `m`, `l`},
+			},
+			excepted: []string{
+				`f`, `g`, `h`, `j`, `k`, `l`, `m`, `n`, `a`, `b`,
+			},
+		},
+		{
+			name: `short_block`,
+			input: map[int][]string{
+				2: {`a`, `b`},
+			},
+			excepted: []string{
+				`a`, `b`,
+			},
+		},
+		{
+			name: `overflow`,
+			input: map[int][]string{
+				5: {`a`, `b`, `c`, `d`, `e`},
+				4: {`f`, `g`},
+				3: {`h`, `i`, `j`, `k`, `l`},
+			},
+			excepted: []string{
+				`a`, `b`, `c`, `d`, `e`, `f`, `g`, `h`, `i`, `j`,
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			result := top(tc.input)
+			require.Equal(t, tc.excepted, result)
+		})
+	}
 }
