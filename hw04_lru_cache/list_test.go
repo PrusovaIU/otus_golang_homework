@@ -123,3 +123,26 @@ func TestRemove(t *testing.T) {
 	})
 
 }
+
+func TestMoveToFront(t *testing.T) {
+	t.Run("move_front", func(t *testing.T) {
+		l := NewList()
+		front := l.PushFront(1)
+		middle := l.PushBack(2)
+		l.PushBack(3)
+		l.MoveToFront(front)
+		require.Equal(t, 3, l.Len())
+		require.Equal(t, front, l.Front())
+		require.Equal(t, middle, front.Next)
+		require.Equal(t, front, middle.Prev)
+	})
+
+	t.Run("move_middle", func(t *testing.T) {
+		l := NewList()
+		l.PushBack(1)
+		middle := l.PushBack(2)
+		l.PushBack(3)
+		l.MoveToFront(middle)
+		require.Equal(t, middle, l.Front())
+	})
+}
