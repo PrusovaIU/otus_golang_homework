@@ -17,7 +17,6 @@ type ListItem struct {
 }
 
 type list struct {
-	List
 	front *ListItem
 	back  *ListItem
 	len   int
