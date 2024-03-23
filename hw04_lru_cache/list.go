@@ -64,23 +64,18 @@ func (l *list) PushBack(v interface{}) *ListItem {
 	return l.back
 }
 
-func (l *list) sieze(i *ListItem) {
-	if i.Prev != nil {
-		i.Prev.Next = i.Next
-	}
-	if i.Next != nil {
-		i.Next.Prev = i.Prev
-	}
-
-}
-
 func (l *list) Remove(i *ListItem) {
 	if l.front == i {
 		l.front = i.Next
 	} else if l.back == i {
 		l.back = i.Prev
 	}
-	l.sieze(i)
+	if i.Prev != nil {
+		i.Prev.Next = i.Next
+	}
+	if i.Next != nil {
+		i.Next.Prev = i.Prev
+	}
 	l.len--
 }
 

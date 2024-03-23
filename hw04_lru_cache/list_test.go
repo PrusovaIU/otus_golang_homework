@@ -121,7 +121,6 @@ func TestRemove(t *testing.T) {
 		require.Equal(t, true, l.Front() == nil)
 		require.Equal(t, 0, l.Len())
 	})
-
 }
 
 func TestMoveToFront(t *testing.T) {

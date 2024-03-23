@@ -29,21 +29,21 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 		flag = true
 	} else {
 		if c.queue.Len() == c.capacity {
-			last_item := c.queue.Back()
-			c.queue.Remove(last_item)
-			delete(c.items, last_item.Value.(*Item).Key)
+			lastItem := c.queue.Back()
+			c.queue.Remove(lastItem)
+			delete(c.items, lastItem.Value.(*Item).Key)
 		}
-		new_item := Item{Key: key, Value: value}
-		new_list_item := c.queue.PushFront(&new_item)
-		c.items[key] = new_list_item
+		newItem := Item{Key: key, Value: value}
+		newListItem := c.queue.PushFront(&newItem)
+		c.items[key] = newListItem
 		flag = false
 	}
 	return flag
 }
 
 func (c *lruCache) Get(key Key) (interface{}, bool) {
-	var flag bool = false
-	var value interface{} = nil
+	flag := false
+	var value interface{}
 	if listItem, ok := c.items[key]; ok {
 		flag = true
 		c.queue.MoveToFront(listItem)

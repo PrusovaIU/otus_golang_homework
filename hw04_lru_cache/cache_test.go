@@ -52,7 +52,6 @@ func TestCache(t *testing.T) {
 }
 
 func TestPushOut(t *testing.T) {
-
 	t.Run("push_out_by_len", func(t *testing.T) {
 		c := NewCache(2)
 		c.Set("aaa", 1)
