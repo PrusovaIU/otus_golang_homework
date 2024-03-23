@@ -145,4 +145,15 @@ func TestMoveToFront(t *testing.T) {
 		l.MoveToFront(middle)
 		require.Equal(t, middle, l.Front())
 	})
+
+	t.Run("move_back", func(t *testing.T) {
+		l := NewList()
+		front := l.PushFront(1)
+		back := l.PushBack(2)
+		l.MoveToFront(back)
+		require.Equal(t, front, l.Back())
+		require.Equal(t, back, l.Front())
+		require.Equal(t, back, front.Prev)
+		require.Equal(t, front, back.Next)
+	})
 }
