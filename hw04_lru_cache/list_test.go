@@ -134,6 +134,7 @@ func TestMoveToFront(t *testing.T) {
 		require.Equal(t, front, l.Front())
 		require.Equal(t, middle, front.Next)
 		require.Equal(t, front, middle.Prev)
+		require.True(t, l.Front().Prev == nil)
 	})
 
 	t.Run("move_middle", func(t *testing.T) {
@@ -143,6 +144,7 @@ func TestMoveToFront(t *testing.T) {
 		l.PushBack(3)
 		l.MoveToFront(middle)
 		require.Equal(t, middle, l.Front())
+		require.True(t, l.Front().Prev == nil)
 	})
 
 	t.Run("move_back", func(t *testing.T) {
@@ -154,5 +156,6 @@ func TestMoveToFront(t *testing.T) {
 		require.Equal(t, back, l.Front())
 		require.Equal(t, back, front.Prev)
 		require.Equal(t, front, back.Next)
+		require.True(t, l.Front().Prev == nil)
 	})
 }
