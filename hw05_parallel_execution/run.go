@@ -39,7 +39,7 @@ func (i *taskIterator) close() bool {
 
 func tracker(stop *chan bool, tracked_channel *chan bool, max int) {
 	i := 0
-	for ok := true; i < max || ok; i++ {
+	for ok := true; i < max && ok; i++ {
 		_, ok = <-*tracked_channel
 	}
 	if i == max {
@@ -64,18 +64,18 @@ func handler(tasks []Task, i *taskIterator, errs_tracker *chan bool) {
 
 func Run(tasks []Task, n, m int) error {
 	tasks_count := len(tasks)
-	task_tracker := make(chan bool, len(tasks))
-	errs_tracker := make(chan bool, m)
-	stop := make(chan bool)
-	go tracker(&stop, &task_tracker, tasks_count)
-	go tracker(&stop, &errs_tracker, m)
-	i_task := taskIterator{sync.Mutex{}, 0, tasks_count}
 	if tasks_count < n {
 		n = tasks_count
 	}
 	if m < 0 {
 		m = tasks_count
 	}
+	task_tracker := make(chan bool, len(tasks))
+	errs_tracker := make(chan bool, m)
+	stop := make(chan bool)
+	go tracker(&stop, &task_tracker, tasks_count)
+	go tracker(&stop, &errs_tracker, m)
+	i_task := taskIterator{sync.Mutex{}, 0, tasks_count}
 	for i := 0; i < n; i++ {
 		go handler(tasks, &i_task, &errs_tracker)
 	}

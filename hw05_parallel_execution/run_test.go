@@ -24,7 +24,7 @@ func TestRun(t *testing.T) {
 		for i := 0; i < tasksCount; i++ {
 			err := fmt.Errorf("error from task %d", i)
 			tasks = append(tasks, func() error {
-				time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
+				time.Sleep(time.Millisecond * time.Duration(rand.Intn(1)))
 				atomic.AddInt32(&runTasksCount, 1)
 				return err
 			})
@@ -66,5 +66,28 @@ func TestRun(t *testing.T) {
 
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
+	})
+}
+
+func TestTracker(t *testing.T) {
+	t.Run("finish_by_max", func(t *testing.T) {
+		n := 5
+		stop := make(chan bool)
+		tracked_channel := make(chan bool, n)
+		max := 4
+		go tracker(&stop, &tracked_channel, max)
+		for i := 0; i < max; i++ {
+			tracked_channel <- true
+			time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
+		}
+		<-stop
+	})
+
+	t.Run("finish_by_ok", func(t *testing.T) {
+		stop := make(chan bool)
+		tracked_channel := make(chan bool, 10)
+		go tracker(&stop, &tracked_channel, 10)
+		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
+		close(tracked_channel)
 	})
 }
