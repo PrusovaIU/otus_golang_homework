@@ -15,26 +15,30 @@ type taskIterator struct {
 	max int
 }
 
-func (i *taskIterator) get() (int, bool) {
-	i.mu.Lock()
-	j := i.i
-	i.i++
-	i.mu.Unlock()
+func (i *taskIterator) check(j int) bool {
 	var ok bool
 	if j < i.max {
 		ok = true
 	} else {
 		ok = false
 	}
-	return j, ok
+	return ok
 }
 
-func (i *taskIterator) close() bool {
+func (i *taskIterator) Get() (int, bool) {
 	i.mu.Lock()
-	_, ok := i.get()
+	j := i.i
+	i.i++
+	i.mu.Unlock()
+	return j, i.check(j)
+}
+
+func (i *taskIterator) Close() bool {
+	i.mu.Lock()
+	j := i.i
 	i.i = i.max
 	i.mu.Unlock()
-	return !ok
+	return !i.check(j)
 }
 
 func tracker(stop *chan bool, tracked_channel *chan bool, max int) {
@@ -49,7 +53,7 @@ func tracker(stop *chan bool, tracked_channel *chan bool, max int) {
 
 func handler(tasks []Task, i *taskIterator, errs_tracker *chan bool) {
 	for {
-		j, ok := i.get()
+		j, ok := i.Get()
 		if !ok {
 			break
 		} else {
@@ -80,7 +84,7 @@ func Run(tasks []Task, n, m int) error {
 		go handler(tasks, &i_task, &errs_tracker)
 	}
 	<-stop
-	ok := i_task.close()
+	ok := i_task.Close()
 	close(errs_tracker)
 	close(task_tracker)
 	if ok {

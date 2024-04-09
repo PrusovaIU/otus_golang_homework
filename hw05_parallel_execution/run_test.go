@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -89,5 +90,18 @@ func TestTracker(t *testing.T) {
 		go tracker(&stop, &tracked_channel, 10)
 		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
 		close(tracked_channel)
+	})
+}
+
+func TestTaskIerator(t *testing.T) {
+	t.Run("finish_by_max", func(t *testing.T) {
+		n := 10
+		task_i := taskIterator{sync.Mutex{}, 0, n}
+		for i := 0; i < n; i++ {
+			_, ok := task_i.Get()
+			require.True(t, ok)
+		}
+		ok := task_i.Close()
+		require.True(t, ok)
 	})
 }
