@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -96,12 +95,22 @@ func TestTracker(t *testing.T) {
 func TestTaskIerator(t *testing.T) {
 	t.Run("finish_by_max", func(t *testing.T) {
 		n := 10
-		task_i := taskIterator{sync.Mutex{}, 0, n}
+		task_i := NewTaskIterator(n)
 		for i := 0; i < n; i++ {
 			_, ok := task_i.Get()
 			require.True(t, ok)
 		}
 		ok := task_i.Close()
 		require.True(t, ok)
+	})
+
+	t.Run("finish_by_close", func(t *testing.T) {
+		n := 10
+		task_i := NewTaskIterator(n)
+		ok := task_i.Close()
+		require.False(t, ok)
+		i, ok := task_i.Get()
+		require.False(t, ok)
+		require.Equal(t, n, i)
 	})
 }
