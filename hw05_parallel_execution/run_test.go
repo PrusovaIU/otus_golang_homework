@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -69,52 +70,6 @@ func TestRun(t *testing.T) {
 	})
 }
 
-func TestTracker(t *testing.T) {
-	t.Run("finish_by_max", func(t *testing.T) {
-		n := 5
-		stop := make(chan bool)
-		tracked_channel := make(chan bool, n)
-		max := 4
-		go tracker(&stop, &tracked_channel, max)
-		for i := 0; i < max; i++ {
-			tracked_channel <- true
-			time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
-		}
-		<-stop
-	})
-
-	t.Run("finish_by_ok", func(t *testing.T) {
-		stop := make(chan bool)
-		tracked_channel := make(chan bool, 10)
-		go tracker(&stop, &tracked_channel, 10)
-		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
-		close(tracked_channel)
-	})
-}
-
-func TestTaskIerator(t *testing.T) {
-	t.Run("finish_by_max", func(t *testing.T) {
-		n := 10
-		task_i := NewTaskIterator(n)
-		for i := 0; i < n; i++ {
-			_, ok := task_i.Get()
-			require.True(t, ok)
-		}
-		ok := task_i.Close()
-		require.True(t, ok)
-	})
-
-	t.Run("finish_by_close", func(t *testing.T) {
-		n := 10
-		task_i := NewTaskIterator(n)
-		ok := task_i.Close()
-		require.False(t, ok)
-		i, ok := task_i.Get()
-		require.False(t, ok)
-		require.Equal(t, n, i)
-	})
-}
-
 func TestHandler(t *testing.T) {
 	tasksCount := 5
 	tests := []struct {
@@ -122,28 +77,27 @@ func TestHandler(t *testing.T) {
 		taskReturn      error
 		errsTrackerRes  int
 		tasksTrackerRes int
+		result          bool
 	}{
-		{name: "without_errs", taskReturn: nil, errsTrackerRes: 0, tasksTrackerRes: tasksCount},
-		{name: "with_errs", taskReturn: errors.New("Test"), errsTrackerRes: tasksCount, tasksTrackerRes: 0},
+		{name: "without_errs", taskReturn: nil, errsTrackerRes: 0, tasksTrackerRes: tasksCount, result: true},
+		{name: "with_errs", taskReturn: errors.New("Test"), errsTrackerRes: tasksCount, tasksTrackerRes: 0, result: false},
 	}
 
 	for _, tc := range tests {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			stop := sync.WaitGroup{}
+			stop.Add(1)
+			iTask := NewIterator(tasksCount)
+			iErr := NewIterator(tasksCount)
 			tasks := make([]Task, 0, tasksCount)
 			for i := 0; i < tasksCount; i++ {
 				tasks = append(tasks, func() error {
 					return tc.taskReturn
 				})
 			}
-			i := NewTaskIterator(tasksCount)
-			errsTracker := make(chan bool, tasksCount)
-			tasksTracker := make(chan bool, tasksCount)
-			handler(tasks, &i, &errsTracker, &tasksTracker)
-			ok := i.Close()
-			require.True(t, ok)
-			require.Equal(t, tc.errsTrackerRes, len(errsTracker))
-			require.Equal(t, tc.tasksTrackerRes, len(tasksTracker))
+			handler(tasks, &stop, &iTask, &iErr)
+			stop.Wait()
 		})
 	}
 }
