@@ -34,7 +34,7 @@ func run(tasks []Task, n, m, tasksCount int) bool {
 		go handler(tasks, &stop, &iTask, &iErr)
 	}
 	stop.Wait()
-	return !iErr.Check()
+	return iErr.Check()
 }
 
 func Run(tasks []Task, n, m int) error {
