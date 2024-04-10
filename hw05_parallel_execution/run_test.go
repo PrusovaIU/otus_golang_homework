@@ -24,7 +24,7 @@ func TestRun(t *testing.T) {
 		for i := 0; i < tasksCount; i++ {
 			err := fmt.Errorf("error from task %d", i)
 			tasks = append(tasks, func() error {
-				time.Sleep(time.Millisecond * time.Duration(rand.Intn(1)))
+				time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
 				atomic.AddInt32(&runTasksCount, 1)
 				return err
 			})
@@ -113,4 +113,37 @@ func TestTaskIerator(t *testing.T) {
 		require.False(t, ok)
 		require.Equal(t, n, i)
 	})
+}
+
+func TestHandler(t *testing.T) {
+	tasksCount := 5
+	tests := []struct {
+		name            string
+		taskReturn      error
+		errsTrackerRes  int
+		tasksTrackerRes int
+	}{
+		{name: "without_errs", taskReturn: nil, errsTrackerRes: 0, tasksTrackerRes: tasksCount},
+		{name: "with_errs", taskReturn: errors.New("Test"), errsTrackerRes: tasksCount, tasksTrackerRes: 0},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			tasks := make([]Task, 0, tasksCount)
+			for i := 0; i < tasksCount; i++ {
+				tasks = append(tasks, func() error {
+					return tc.taskReturn
+				})
+			}
+			i := NewTaskIterator(tasksCount)
+			errsTracker := make(chan bool, tasksCount)
+			tasksTracker := make(chan bool, tasksCount)
+			handler(tasks, &i, &errsTracker, &tasksTracker)
+			ok := i.Close()
+			require.True(t, ok)
+			require.Equal(t, tc.errsTrackerRes, len(errsTracker))
+			require.Equal(t, tc.tasksTrackerRes, len(tasksTracker))
+		})
+	}
 }

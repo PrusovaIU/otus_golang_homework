@@ -18,7 +18,7 @@ func tracker(stop *chan bool, tracked_channel *chan bool, max int) {
 	}
 }
 
-func handler(tasks []Task, i *TaskIterator, errs_tracker *chan bool) {
+func handler(tasks []Task, i *TaskIterator, errsTracker *chan bool, taskTracker *chan bool) {
 	for {
 		j, ok := i.Get()
 		if !ok {
@@ -27,34 +27,40 @@ func handler(tasks []Task, i *TaskIterator, errs_tracker *chan bool) {
 			task := tasks[j]
 			err := task()
 			if err != nil {
-				*errs_tracker <- true
+				*errsTracker <- true
+			} else {
+				*taskTracker <- true
 			}
 		}
 	}
 }
 
-func Run(tasks []Task, n, m int) error {
-	tasks_count := len(tasks)
-	if tasks_count < n {
-		n = tasks_count
-	}
-	if m < 0 {
-		m = tasks_count
-	}
-	task_tracker := make(chan bool, len(tasks))
-	errs_tracker := make(chan bool, m)
+func run(tasks []Task, n, m, tasksCount int) bool {
+	taskTracker := make(chan bool, len(tasks))
+	errsTracker := make(chan bool, m)
 	stop := make(chan bool)
-	go tracker(&stop, &task_tracker, tasks_count)
-	go tracker(&stop, &errs_tracker, m)
-	i_task := NewTaskIterator(tasks_count)
+	go tracker(&stop, &taskTracker, tasksCount)
+	go tracker(&stop, &errsTracker, m)
+	iTask := NewTaskIterator(tasksCount)
 	for i := 0; i < n; i++ {
-		go handler(tasks, &i_task, &errs_tracker)
+		go handler(tasks, &iTask, &errsTracker, &taskTracker)
 	}
 	<-stop
-	ok := i_task.Close()
-	close(errs_tracker)
-	close(task_tracker)
-	if ok {
+	ok := iTask.Close()
+	close(errsTracker)
+	close(taskTracker)
+	return ok
+}
+
+func Run(tasks []Task, n, m int) error {
+	tasksCount := len(tasks)
+	if tasksCount < n {
+		n = tasksCount
+	}
+	if m < 0 {
+		m = tasksCount
+	}
+	if ok := run(tasks, n, m, tasksCount); ok {
 		return nil
 	} else {
 		return ErrErrorsLimitExceeded
