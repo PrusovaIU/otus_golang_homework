@@ -84,6 +84,7 @@ func TestRun(t *testing.T) {
 		require.NoError(t, err)
 	})
 }
+
 func TestHandler(t *testing.T) {
 	tasksCount := 5
 	tests := []struct {

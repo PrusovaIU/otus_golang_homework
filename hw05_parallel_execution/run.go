@@ -14,12 +14,11 @@ func handler(tasks []Task, stop *sync.WaitGroup, iTask *Iterator, iErr *Iterator
 		j, ok := iTask.Get()
 		if !ok {
 			break
-		} else {
-			task := tasks[j]
-			err := task()
-			if err != nil {
-				iErr.Get()
-			}
+		}
+		task := tasks[j]
+		err := task()
+		if err != nil {
+			iErr.Get()
 		}
 	}
 	stop.Done()
@@ -47,7 +46,6 @@ func Run(tasks []Task, n, m int) error {
 	}
 	if ok := run(tasks, n, m, tasksCount); ok {
 		return nil
-	} else {
-		return ErrErrorsLimitExceeded
 	}
+	return ErrErrorsLimitExceeded
 }
