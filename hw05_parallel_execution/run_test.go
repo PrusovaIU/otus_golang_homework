@@ -31,8 +31,8 @@ func TestRun(t *testing.T) {
 			})
 		}
 
-		workersCount := 1
-		maxErrorsCount := 3
+		workersCount := 10
+		maxErrorsCount := 23
 		err := Run(tasks, workersCount, maxErrorsCount)
 
 		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
@@ -68,8 +68,22 @@ func TestRun(t *testing.T) {
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
 	})
-}
 
+	t.Run("negative m", func(t *testing.T) {
+		tasksCount := 10
+		tasks := make([]Task, 0, tasksCount)
+		for i := 0; i < tasksCount; i++ {
+			err := fmt.Errorf("error from task %d", i)
+			tasks = append(tasks, func() error {
+				return err
+			})
+		}
+		workersCount := 2
+		maxErrorsCount := -1
+		err := Run(tasks, workersCount, maxErrorsCount)
+		require.NoError(t, err)
+	})
+}
 func TestHandler(t *testing.T) {
 	tasksCount := 5
 	tests := []struct {
@@ -79,8 +93,8 @@ func TestHandler(t *testing.T) {
 		tasksTrackerRes int
 		result          bool
 	}{
-		{name: "without_errs", taskReturn: nil, errsTrackerRes: 0, tasksTrackerRes: tasksCount, result: true},
-		{name: "with_errs", taskReturn: errors.New("Test"), errsTrackerRes: tasksCount, tasksTrackerRes: 0, result: false},
+		{name: "without errs", taskReturn: nil, errsTrackerRes: 0, tasksTrackerRes: tasksCount, result: true},
+		{name: "with errs", taskReturn: errors.New("Test"), errsTrackerRes: tasksCount, tasksTrackerRes: 0, result: false},
 	}
 
 	for _, tc := range tests {

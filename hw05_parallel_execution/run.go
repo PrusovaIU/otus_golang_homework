@@ -43,7 +43,7 @@ func Run(tasks []Task, n, m int) error {
 		n = tasksCount
 	}
 	if m < 0 {
-		m = tasksCount
+		m = tasksCount + 1
 	}
 	if ok := run(tasks, n, m, tasksCount); ok {
 		return nil
