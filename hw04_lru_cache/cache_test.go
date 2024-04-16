@@ -1,9 +1,6 @@
 package hw04lrucache
 
 import (
-	"math/rand"
-	"strconv"
-	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -54,26 +51,24 @@ func TestCache(t *testing.T) {
 	})
 }
 
-func TestCacheMultithreading(t *testing.T) {
-	t.Skip() // Remove me if task with asterisk completed.
+func TestPushOut(t *testing.T) {
+	t.Run("push_out_by_len", func(t *testing.T) {
+		c := NewCache(2)
+		c.Set("aaa", 1)
+		c.Set("bbb", 2)
+		wasInCache := c.Set("ccc", 3)
+		require.False(t, wasInCache)
+		_, ok := c.Get("aaa")
+		require.False(t, ok)
+	})
 
-	c := NewCache(10)
-	wg := &sync.WaitGroup{}
-	wg.Add(2)
-
-	go func() {
-		defer wg.Done()
-		for i := 0; i < 1_000_000; i++ {
-			c.Set(Key(strconv.Itoa(i)), i)
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		for i := 0; i < 1_000_000; i++ {
-			c.Get(Key(strconv.Itoa(rand.Intn(1_000_000))))
-		}
-	}()
-
-	wg.Wait()
+	t.Run("push_out_old_elements", func(t *testing.T) {
+		c := NewCache(2)
+		c.Set("aaa", 1)
+		c.Set("bbb", 2)
+		c.Get("aaa")
+		c.Set("ccc", 3)
+		_, ok := c.Get("bbb")
+		require.False(t, ok)
+	})
 }
