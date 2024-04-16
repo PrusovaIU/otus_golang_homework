@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"sync"
+
 	"sync/atomic"
 	"testing"
 	"time"
@@ -85,34 +85,69 @@ func TestRun(t *testing.T) {
 	})
 }
 
-func TestHandler(t *testing.T) {
-	tasksCount := 5
-	tests := []struct {
-		name            string
-		taskReturn      error
-		errsTrackerRes  int
-		tasksTrackerRes int
-		result          bool
-	}{
-		{name: "without errs", taskReturn: nil, errsTrackerRes: 0, tasksTrackerRes: tasksCount, result: true},
-		{name: "with errs", taskReturn: errors.New("Test"), errsTrackerRes: tasksCount, tasksTrackerRes: 0, result: false},
-	}
+// func TestHandler(t *testing.T) {
+// 	tasksCount := 5
+// 	tests := []struct {
+// 		name            string
+// 		taskReturn      error
+// 		errsTrackerRes  int
+// 		tasksTrackerRes int
+// 		result          bool
+// 	}{
+// 		{name: "without errs", taskReturn: nil, errsTrackerRes: 0, tasksTrackerRes: tasksCount, result: true},
+// 		// {name: "with errs", taskReturn: errors.New("Test"), errsTrackerRes: tasksCount, tasksTrackerRes: 0, result: false},
+// 	}
 
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			stop := sync.WaitGroup{}
-			stop.Add(1)
-			iTask := NewIterator(tasksCount)
-			iErr := NewIterator(tasksCount)
-			tasks := make([]Task, 0, tasksCount)
-			for i := 0; i < tasksCount; i++ {
-				tasks = append(tasks, func() error {
-					return tc.taskReturn
-				})
-			}
-			handler(tasks, &stop, &iTask, &iErr)
-			stop.Wait()
-		})
+// 	// for _, tc := range tests {
+// 	// 	tc := tc
+// 	// 	t.Run(tc.name, func(t *testing.T) {
+// 	// 		stop := sync.WaitGroup{}
+// 	// 		stop.Add(1)
+// 	// 		iTask := NewIterator(tasksCount)
+// 	// 		iErr := NewIterator(tasksCount)
+// 	// 		tasks := make([]Task, 0, tasksCount)
+// 	// 		for i := 0; i < tasksCount; i++ {
+// 	// 			tasks = append(tasks, func() error {
+// 	// 				return tc.taskReturn
+// 	// 			})
+// 	// 		}
+// 	// 		handler(tasks, &stop, &iTask, &iErr)
+// 	// 		stop.Wait()
+// 	// 	})
+// 	// }
+// 	for _, tc := range tests {
+// 		tc := tc
+// 		t.Run(tc.name, func(t *testing.T) {
+// 			stop := sync.WaitGroup{}
+// 			stop.Add(1)
+// 			iErr := NewIterator(tasksCount)
+// 			tasks := make(chan Task, tasksCount)
+// 			for i := 0; i < tasksCount; i++ {
+// 				tasks <- func() error {
+// 					return tc.taskReturn
+// 				}
+// 			}
+// 			go handler(tasks, &stop, &iErr)
+// 			stop.Wait()
+// 			close(tasks)
+// 		})
+// 	}
+// }
+
+func TestHandler(t *testing.T) {
+	tasks := make(chan Task, 2)
+	tasks <- func() error {
+		return nil
 	}
+	tasks <- func() error {
+		return errors.New("Test")
+	}
+	iTasks := make(chan bool)
+	iErrs := make(chan bool)
+	go handler(tasks, iTasks, iErrs)
+	<-iTasks
+	<-iErrs
+	close(tasks)
+	close(iTasks)
+	close(iErrs)
 }

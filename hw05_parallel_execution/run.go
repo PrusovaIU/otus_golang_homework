@@ -9,38 +9,55 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type Task func() error
 
-func handler(tasks []Task, stop *sync.WaitGroup, iTask *Iterator, iErr *Iterator) {
-	for iErr.Check() {
-		j, ok := iTask.Get()
+func handler(tasks chan Task, iTasks chan bool, iErrs chan bool) {
+	for {
+		task, ok := <-tasks
 		if !ok {
 			break
 		}
-		task := tasks[j]
 		err := task()
 		if err != nil {
-			iErr.Get()
+			iErrs <- true
+		} else {
+			iTasks <- true
+		}
+	}
+}
+
+func observer(i chan bool, max int, stop *sync.WaitGroup, j *Counter) {
+	for {
+		if _, ok := <-i; !ok {
+			break
+		} else {
+			j.Inc()
 		}
 	}
 	stop.Done()
 }
 
 func run(tasks []Task, n, m, tasksCount int) bool {
+	var tasksChan = make(chan Task, tasksCount)
+	for _, task := range tasks {
+		tasksChan <- task
+	}
 	stop := sync.WaitGroup{}
-	iTask := NewIterator(tasksCount)
-	iErr := NewIterator(m)
+	stop.Add(1)
+	iTasks := make(chan bool, tasksCount)
+	jTask := NewCounter()
+	iErrs := make(chan bool, m)
+	jErr := NewCounter()
+	go observer(iTasks, tasksCount, &stop, &jTask)
+	go observer(iErrs, m, &stop, &jErr)
 	for i := 0; i < n; i++ {
-		stop.Add(1)
-		go handler(tasks, &stop, &iTask, &iErr)
+		go handler(tasksChan, iTasks, iErrs)
 	}
 	stop.Wait()
-	return iErr.Check()
+	close(tasksChan)
+	return jErr.Get() < m
 }
 
 func Run(tasks []Task, n, m int) error {
 	tasksCount := len(tasks)
-	if tasksCount < n {
-		n = tasksCount
-	}
 	if m < 0 {
 		m = tasksCount + 1
 	}
