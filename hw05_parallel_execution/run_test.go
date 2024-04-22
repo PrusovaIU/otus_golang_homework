@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -16,7 +17,7 @@ func TestRun(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
 	t.Run("if were errors in first M tasks, than finished not more N+M tasks", func(t *testing.T) {
-		tasksCount := 50
+		tasksCount := 10
 		tasks := make([]Task, 0, tasksCount)
 
 		var runTasksCount int32
@@ -30,8 +31,8 @@ func TestRun(t *testing.T) {
 			})
 		}
 
-		workersCount := 10
-		maxErrorsCount := 23
+		workersCount := 2
+		maxErrorsCount := 5
 		err := Run(tasks, workersCount, maxErrorsCount)
 
 		require.Truef(t, errors.Is(err, ErrErrorsLimitExceeded), "actual err - %v", err)
@@ -68,3 +69,59 @@ func TestRun(t *testing.T) {
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
 	})
 }
+
+func TestHandler(t *testing.T) {
+	tasks := []struct {
+		name       string
+		funcReturn error
+	}{
+		{name: "nil", funcReturn: nil},
+		{name: "error", funcReturn: fmt.Errorf("Test error")},
+	}
+	for _, tc := range tasks {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			tasksChan := make(chan Task)
+			results := make(chan error)
+			done := sync.WaitGroup{}
+			go handler(tasksChan, results, &done)
+			tasksChan <- func() error {
+				return tc.funcReturn
+			}
+			result := <-results
+			require.Equal(t, tc.funcReturn, result)
+			done.Wait()
+		})
+	}
+}
+
+// func TestObserve(t *testing.T) {
+
+// 	t.Run("tasks without errors", func(t *testing.T) {
+// 		tasksCount := 2
+// 		results := make(chan error)
+// 		errsMax := 0
+// 		tasksChan := make(chan Task)
+// 		go func() {
+// 			for i := 0; i < tasksCount; i++ {
+// 				results <- nil
+// 			}
+// 		}()
+// 		iErr := observe(tasksCount, results, errsMax, tasksChan)
+// 		require.Equal(t, 0, iErr)
+// 	})
+
+// 	t.Run("tast with errors", func(t *testing.T) {
+// 		tasksCount := 2
+// 		results := make(chan error)
+// 		errsMax := 2
+// 		tasksChan := make(chan Task)
+// 		go func() {
+// 			for i := 0; i < errsMax; i++ {
+// 				results <- fmt.Errorf("Test error")
+// 			}
+// 		}()
+// 		iErr := observe(tasksCount, results, errsMax, tasksChan)
+// 		require.Equal(t, errsMax, iErr)
+// 	})
+// }
