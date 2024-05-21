@@ -114,7 +114,7 @@ func TestStageWrapper(t *testing.T) {
 		in <- 6
 		close(in)
 	}()
-	out := stageWrapper(in, done, stage)
+	out, _ := stageWrapper(in, done, stage)
 	resultData := []int{}
 	for el := range out {
 		resultData = append(resultData, el.(int))

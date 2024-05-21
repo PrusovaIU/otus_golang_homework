@@ -2,6 +2,9 @@ package main
 
 import (
 	"flag"
+	"time"
+
+	"github.com/schollz/progressbar/v3"
 )
 
 var (
@@ -17,6 +20,10 @@ func init() {
 }
 
 func main() {
-	flag.Parse()
-	// Place your code here.
+	// flag.Parse()
+	bar := progressbar.Default(100)
+	for i := 0; i < 100; i++ {
+		bar.Add(1)
+		time.Sleep(40 * time.Millisecond)
+	}
 }
