@@ -8,12 +8,12 @@ type (
 
 type Stage func(in In) (out Out)
 
-func stage_wrapper(in In, done In, stage Stage) Out {
+func stageWrapper(in In, done In, stage Stage) Out {
 	out := make(Bi)
-	stage_out := stage(in)
+	stageOut := stage(in)
 	go func() {
 		defer close(out)
-		for i := range stage_out {
+		for i := range stageOut {
 			select {
 			case <-done:
 				return
@@ -25,10 +25,10 @@ func stage_wrapper(in In, done In, stage Stage) Out {
 }
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
-	stage_in := in
+	stageIn := in
 	for _, stage := range stages {
 		// stage_in = stage(stage_in)
-		stage_in = stage_wrapper(stage_in, done, stage)
+		stageIn = stageWrapper(stageIn, done, stage)
 	}
-	return stage_in
+	return stageIn
 }

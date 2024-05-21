@@ -114,10 +114,10 @@ func TestStageWrapper(t *testing.T) {
 		in <- 6
 		close(in)
 	}()
-	out := stage_wrapper(in, done, stage)
-	result_data := []int{}
+	out := stageWrapper(in, done, stage)
+	resultData := []int{}
 	for el := range out {
-		result_data = append(result_data, el.(int))
+		resultData = append(resultData, el.(int))
 	}
-	require.LessOrEqual(t, len(result_data), len(data))
+	require.LessOrEqual(t, len(resultData), len(data))
 }
