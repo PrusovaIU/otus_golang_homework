@@ -20,6 +20,7 @@ func openFromFile(path string, offset int64) (*os.File, error) {
 		return nil, ErrUnsupportedFile
 	}
 	if offset > fromFileStat.Size() {
+		fromFile.Close()
 		return nil, ErrOffsetExceedsFileSize
 	}
 	return fromFile, nil
