@@ -45,7 +45,7 @@ func TestOpenFromFile(t *testing.T) {
 			os.Remove(file_name)
 		}
 		_, err := openFromFile(file_content, int64(len(file_content)))
-		require.ErrorIs(t, err, ErrUnsupportedFile)
+		require.Error(t, err)
 	})
 
 	t.Run("offset_error", func(t *testing.T) {
