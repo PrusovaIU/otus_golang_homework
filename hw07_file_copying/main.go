@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+
+	"otus_golang_homework/hw07_file_copying/copy"
 )
 
 var (
@@ -20,7 +22,7 @@ func init() {
 func main() {
 	flag.Parse()
 	fmt.Println(from, to)
-	err := Copy(from, to, offset, limit)
+	err := copy.Copy(from, to, offset, limit)
 	if err != nil {
 		fmt.Println(err)
 	}

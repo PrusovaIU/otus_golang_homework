@@ -1,10 +1,11 @@
-package main
+package copy
 
 import (
 	"bufio"
 	"errors"
 	"io"
 	"io/fs"
+
 	"os"
 
 	"github.com/schollz/progressbar/v3"
@@ -64,7 +65,7 @@ type BufferByteWriter interface {
 	Flush() error
 }
 
-func copy(bufferReader BufferByteReader, bufferWriter BufferByteWriter, limit int64) error {
+func readWrite(bufferReader BufferByteReader, bufferWriter BufferByteWriter, limit int64) error {
 	bar := progressbar.Default(limit)
 	for i := 0; i < int(limit); i++ {
 		ibyte, err := bufferReader.ReadByte()
@@ -121,7 +122,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 	fromFileReader := bufio.NewReader(fromFile)
 	toFileWriter := bufio.NewWriter(toFile)
-	copy(fromFileReader, toFileWriter, limit)
+	readWrite(fromFileReader, toFileWriter, limit)
 	toFile.Close()
 	fromFile.Close()
 	return nil
