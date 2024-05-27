@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"io"
+	"io/fs"
 	"os"
 
 	"github.com/schollz/progressbar/v3"
@@ -14,56 +15,114 @@ var (
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 )
 
-func openFromFile(path string, offset int64) (*os.File, error) {
-	fromFile, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
+type File interface {
+	Stat() (fs.FileInfo, error)
+	Seek(int64, int) (int64, error)
+}
+
+func offsetPrepare(fromFile File, offset int64) error {
 	fromFileStat, err := fromFile.Stat()
 	if err != nil {
-		return nil, ErrUnsupportedFile
+		return ErrUnsupportedFile
 	}
 	if offset > fromFileStat.Size() {
-		fromFile.Close()
-		return nil, ErrOffsetExceedsFileSize
+		return ErrOffsetExceedsFileSize
 	}
 	_, err = fromFile.Seek(offset, io.SeekStart)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return fromFile, nil
+	return nil
 }
 
-func copy(fromFile, toFile *os.File, limit int64) error {
-	fromFileReader := bufio.NewReader(fromFile)
-	toFileWriter := bufio.NewWriter(toFile)
+// func openFromFile(path string, offset int64) (*os.File, error) {
+// 	fromFile, err := os.Open(path)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	fromFileStat, err := fromFile.Stat()
+// 	if err != nil {
+// 		return nil, ErrUnsupportedFile
+// 	}
+// 	if offset > fromFileStat.Size() {
+// 		fromFile.Close()
+// 		return nil, ErrOffsetExceedsFileSize
+// 	}
+// 	_, err = fromFile.Seek(offset, io.SeekStart)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return fromFile, nil
+// }
+
+type BufferByteReader interface {
+	ReadByte() (byte, error)
+}
+
+type BufferByteWriter interface {
+	WriteByte(byte) error
+	Flush() error
+}
+
+func copy(bufferReader BufferByteReader, bufferWriter BufferByteWriter, limit int64) error {
 	bar := progressbar.Default(limit)
 	for i := 0; i < int(limit); i++ {
-		ibyte, err := fromFileReader.ReadByte()
+		ibyte, err := bufferReader.ReadByte()
 		if err != nil {
+			if err == io.EOF {
+				break
+			}
 			return err
 		}
-		err = toFileWriter.WriteByte(ibyte)
+		err = bufferWriter.WriteByte(ibyte)
 		if err != nil {
 			return err
 		}
 		bar.Add(1)
 	}
-	toFileWriter.Flush()
+	bar.Finish()
+	err := bufferWriter.Flush()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
+// func Copy(fromPath, toPath string, offset, limit int64) error {
+// 	fromFile, err := openFromFile(fromPath, offset)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	toFile, err := os.OpenFile(toPath, os.O_WRONLY|os.O_CREATE, 0666)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	fromFileReader := bufio.NewReader(fromFile)
+// 	toFileWriter := bufio.NewWriter(toFile)
+// 	copy(fromFileReader, toFileWriter, limit)
+// 	fromFile.Close()
+// 	toFile.Close()
+// 	return nil
+// }
+
 func Copy(fromPath, toPath string, offset, limit int64) error {
-	fromFile, err := openFromFile(fromPath, offset)
+	fromFile, err := os.Open(fromPath)
 	if err != nil {
+		return err
+	}
+	err = offsetPrepare(fromFile, offset)
+	if err != nil {
+		fromFile.Close()
 		return err
 	}
 	toFile, err := os.OpenFile(toPath, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
-	copy(fromFile, toFile, limit)
-	fromFile.Close()
+	fromFileReader := bufio.NewReader(fromFile)
+	toFileWriter := bufio.NewWriter(toFile)
+	copy(fromFileReader, toFileWriter, limit)
 	toFile.Close()
+	fromFile.Close()
 	return nil
 }
