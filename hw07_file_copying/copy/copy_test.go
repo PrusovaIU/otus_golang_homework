@@ -80,5 +80,77 @@ func TestOffsetPrepare(t *testing.T) {
 		err := offsetPrepare(file_mock, int64(offset))
 		require.ErrorIs(t, err, returned_err)
 	})
+}
 
+func TestReadWrite(t *testing.T) {
+	offset := 10
+	read_byte := byte(1)
+	returned_err := errors.New("Test error")
+
+	t.Run("stop_by_limit", func(t *testing.T) {
+		buffer_reader := mocks.NewBufferByteReader(t)
+		buffer_reader.EXPECT().ReadByte().Return(read_byte, nil)
+		buffer_writer := mocks.NewBufferByteWriter(t)
+		buffer_writer.EXPECT().WriteByte(read_byte).Return(nil)
+		buffer_writer.EXPECT().Flush().Return(nil)
+
+		err := readWrite(buffer_reader, buffer_writer, int64(offset))
+		require.NoError(t, err)
+
+		buffer_reader.AssertNumberOfCalls(t, "ReadByte", offset)
+		buffer_writer.AssertNumberOfCalls(t, "WriteByte", offset)
+	})
+
+	t.Run("stop_by_eof", func(t *testing.T) {
+		bytes_in_file := int(offset / 2)
+		buffer_reader := mocks.NewBufferByteReader(t)
+		for i := 0; i < bytes_in_file; i++ {
+			buffer_reader.EXPECT().ReadByte().Return(read_byte, nil).Once()
+		}
+		buffer_reader.EXPECT().ReadByte().Return(0, io.EOF).Once()
+		buffer_writer := mocks.NewBufferByteWriter(t)
+		buffer_writer.EXPECT().WriteByte(read_byte).Return(nil)
+		buffer_writer.EXPECT().Flush().Return(nil)
+
+		err := readWrite(buffer_reader, buffer_writer, int64(offset))
+		require.NoError(t, err)
+
+		buffer_reader.AssertNumberOfCalls(t, "ReadByte", bytes_in_file+1)
+		buffer_writer.AssertNumberOfCalls(t, "WriteByte", bytes_in_file)
+	})
+
+	t.Run("read_err", func(t *testing.T) {
+		buffer_reader := mocks.NewBufferByteReader(t)
+		buffer_reader.EXPECT().ReadByte().Return(0, returned_err)
+		buffer_writer := mocks.NewBufferByteWriter(t)
+
+		err := readWrite(buffer_reader, buffer_writer, int64(offset))
+		require.ErrorIs(t, err, returned_err)
+
+		buffer_writer.AssertNotCalled(t, "WriteByte")
+		buffer_writer.AssertNotCalled(t, "Flush")
+	})
+
+	t.Run("write_err", func(t *testing.T) {
+		buffer_reader := mocks.NewBufferByteReader(t)
+		buffer_reader.EXPECT().ReadByte().Return(read_byte, nil)
+		buffer_writer := mocks.NewBufferByteWriter(t)
+		buffer_writer.EXPECT().WriteByte(read_byte).Return(returned_err)
+
+		err := readWrite(buffer_reader, buffer_writer, int64(offset))
+		require.ErrorIs(t, err, returned_err)
+
+		buffer_writer.AssertNotCalled(t, "Flush")
+	})
+
+	t.Run("flush_err", func(t *testing.T) {
+		buffer_reader := mocks.NewBufferByteReader(t)
+		buffer_reader.EXPECT().ReadByte().Return(read_byte, nil)
+		buffer_writer := mocks.NewBufferByteWriter(t)
+		buffer_writer.EXPECT().WriteByte(read_byte).Return(nil)
+		buffer_writer.EXPECT().Flush().Return(returned_err)
+
+		err := readWrite(buffer_reader, buffer_writer, int64(offset))
+		require.ErrorIs(t, err, returned_err)
+	})
 }

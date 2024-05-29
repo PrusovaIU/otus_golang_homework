@@ -36,26 +36,6 @@ func offsetPrepare(fromFile File, offset int64) error {
 	return nil
 }
 
-// func openFromFile(path string, offset int64) (*os.File, error) {
-// 	fromFile, err := os.Open(path)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	fromFileStat, err := fromFile.Stat()
-// 	if err != nil {
-// 		return nil, ErrUnsupportedFile
-// 	}
-// 	if offset > fromFileStat.Size() {
-// 		fromFile.Close()
-// 		return nil, ErrOffsetExceedsFileSize
-// 	}
-// 	_, err = fromFile.Seek(offset, io.SeekStart)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return fromFile, nil
-// }
-
 type BufferByteReader interface {
 	ReadByte() (byte, error)
 }
@@ -88,23 +68,6 @@ func readWrite(bufferReader BufferByteReader, bufferWriter BufferByteWriter, lim
 	}
 	return nil
 }
-
-// func Copy(fromPath, toPath string, offset, limit int64) error {
-// 	fromFile, err := openFromFile(fromPath, offset)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	toFile, err := os.OpenFile(toPath, os.O_WRONLY|os.O_CREATE, 0666)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	fromFileReader := bufio.NewReader(fromFile)
-// 	toFileWriter := bufio.NewWriter(toFile)
-// 	copy(fromFileReader, toFileWriter, limit)
-// 	fromFile.Close()
-// 	toFile.Close()
-// 	return nil
-// }
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
 	fromFile, err := os.Open(fromPath)
