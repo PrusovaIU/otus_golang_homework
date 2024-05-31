@@ -8,7 +8,7 @@ import (
 	"os"
 	"testing"
 
-	"otus_golang_homework/hw07_file_copying/dd_copy/mocks"
+	"github.com/PrusovaIU/otus_golang_homework/hw07_file_copying/dd_copy/mocks"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

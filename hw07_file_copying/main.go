@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"otus_golang_homework/hw07_file_copying/dd_copy"
+	"github.com/PrusovaIU/otus_golang_homework/hw07_file_copying/dd_copy"
 )
 
 var (
