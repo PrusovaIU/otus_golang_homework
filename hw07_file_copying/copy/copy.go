@@ -46,7 +46,7 @@ type BufferByteWriter interface {
 }
 
 func readWrite(bufferReader BufferByteReader, bufferWriter BufferByteWriter, limit int64) error {
-	bar := progressbar.Default(limit)
+	bar := progressbar.Default(limit + 1)
 	for i := 0; i < int(limit); i++ {
 		ibyte, err := bufferReader.ReadByte()
 		if err != nil {
@@ -60,6 +60,7 @@ func readWrite(bufferReader BufferByteReader, bufferWriter BufferByteWriter, lim
 		}
 		bar.Add(1)
 	}
+	bar.Add(1)
 	bar.Finish()
 	if err := bufferWriter.Flush(); err != nil {
 		return err
@@ -76,7 +77,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		fromFile.Close()
 		return err
 	}
-	toFile, err := os.OpenFile(toPath, os.O_WRONLY|os.O_CREATE, 0666)
+	toFile, err := os.Create(toPath)
 	if err != nil {
 		return err
 	}
