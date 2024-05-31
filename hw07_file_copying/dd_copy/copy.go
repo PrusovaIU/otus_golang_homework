@@ -17,21 +17,27 @@ var (
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 )
 
-type File interface {
+type FileStat interface {
 	Stat() (fs.FileInfo, error)
+}
+
+func getFromFileSize(fromFile FileStat) (int64, error) {
+	fromFileStat, err := fromFile.Stat()
+	if err != nil {
+		return 0, ErrUnsupportedFile
+	}
+	return fromFileStat.Size(), nil
+}
+
+type FileSeek interface {
 	Seek(int64, int) (int64, error)
 }
 
-func offsetPrepare(fromFile File, offset int64) error {
-	fromFileStat, err := fromFile.Stat()
-	if err != nil {
-		return ErrUnsupportedFile
-	}
-	if offset > fromFileStat.Size() {
+func seek(fromFile FileSeek, offset, fileSize int64) error {
+	if offset > fileSize {
 		return ErrOffsetExceedsFileSize
 	}
-	_, err = fromFile.Seek(offset, io.SeekStart)
-	if err != nil {
+	if _, err := fromFile.Seek(offset, io.SeekStart); err != nil {
 		return err
 	}
 	return nil
@@ -80,7 +86,14 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	if err != nil {
 		return err
 	}
-	if err = offsetPrepare(fromFile, offset); err != nil {
+	fromFileSize, err := getFromFileSize(fromFile)
+	if err != nil {
+		return err
+	}
+	if limit == 0 {
+		limit = fromFileSize
+	}
+	if err = seek(fromFile, offset, fromFileSize); err != nil {
 		fromFile.Close()
 		return err
 	}

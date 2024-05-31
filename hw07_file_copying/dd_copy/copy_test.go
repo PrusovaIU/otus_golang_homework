@@ -89,61 +89,110 @@ func (o *StatMock) Size() int64 {
 	return int64(args.Int(0))
 }
 
-func TestOffsetPrepare(t *testing.T) {
-	offset := 100
+func TestGetFromFileSize(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		exSize := 100
+		statMock := &StatMock{}
+		statMock.On("Size").Return(exSize)
+		fileMock := mocks.NewFileStat(t)
+		fileMock.EXPECT().Stat().Return(statMock, nil)
 
-	cases := []struct {
-		name string
-		size int
-	}{
-		{name: "size_eq_offset", size: offset},
-		{name: "size_gt_offset", size: offset + 1},
-	}
+		fileSize, err := getFromFileSize(fileMock)
+		require.NoError(t, err)
+		require.Equal(t, int64(exSize), fileSize)
+	})
 
-	for _, tc := range cases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			stat_mock := &StatMock{}
-			stat_mock.On("Size").Return(tc.size)
-			file_mock := mocks.NewFile(t)
-			file_mock.EXPECT().Stat().Return(stat_mock, nil)
-			file_mock.EXPECT().Seek(int64(offset), io.SeekStart).Return(int64(0), nil)
+	t.Run("error", func(t *testing.T) {
+		fileMock := mocks.NewFileStat(t)
+		fileMock.EXPECT().Stat().Return(nil, errors.New("Test error"))
 
-			err := offsetPrepare(file_mock, int64(offset))
-			require.Nil(t, err)
-		})
-	}
+		_, err := getFromFileSize(fileMock)
+		require.Error(t, err)
+	})
+}
 
-	t.Run("size_lt_offset", func(t *testing.T) {
-		stat_mock := &StatMock{}
-		stat_mock.On("Size").Return(offset - 1)
-		file_mock := mocks.NewFile(t)
-		file_mock.EXPECT().Stat().Return(stat_mock, nil)
+func TestSeek(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		offset := 10
+		fileMock := mocks.NewFileSeek(t)
+		fileMock.EXPECT().Seek(int64(offset), io.SeekStart).Return(0, nil)
 
-		err := offsetPrepare(file_mock, int64(offset))
+		err := seek(fileMock, int64(offset), int64(offset)+100)
+		require.NoError(t, err)
+	})
+
+	t.Run("offset_error", func(t *testing.T) {
+		fileMock := mocks.NewFileSeek(t)
+		err := seek(fileMock, int64(100), int64(10))
+
 		require.ErrorIs(t, err, ErrOffsetExceedsFileSize)
 	})
 
-	t.Run("stat_error", func(t *testing.T) {
-		file_mock := mocks.NewFile(t)
-		file_mock.EXPECT().Stat().Return(nil, errors.New("Test error"))
-
-		err := offsetPrepare(file_mock, int64(offset))
-		require.ErrorIs(t, err, ErrUnsupportedFile)
-	})
-
 	t.Run("seek_error", func(t *testing.T) {
-		stat_mock := &StatMock{}
-		stat_mock.On("Size").Return(offset)
-		file_mock := mocks.NewFile(t)
-		file_mock.EXPECT().Stat().Return(stat_mock, nil)
-		returned_err := errors.New("Test error")
-		file_mock.EXPECT().Seek(int64(offset), io.SeekStart).Return(0, returned_err)
+		offset := 10
+		fileMock := mocks.NewFileSeek(t)
+		fileMock.EXPECT().Seek(int64(offset), io.SeekStart).Return(0, errors.New("Test error"))
 
-		err := offsetPrepare(file_mock, int64(offset))
-		require.ErrorIs(t, err, returned_err)
+		err := seek(fileMock, int64(offset), int64(offset)+100)
+		require.Error(t, err)
 	})
 }
+
+// func TestOffsetPrepare(t *testing.T) {
+// 	offset := 100
+
+// 	cases := []struct {
+// 		name string
+// 		size int
+// 	}{
+// 		{name: "size_eq_offset", size: offset},
+// 		{name: "size_gt_offset", size: offset + 1},
+// 	}
+
+// 	for _, tc := range cases {
+// 		tc := tc
+// 		t.Run(tc.name, func(t *testing.T) {
+// 			stat_mock := &StatMock{}
+// 			stat_mock.On("Size").Return(tc.size)
+// 			file_mock := mocks.NewFile(t)
+// 			file_mock.EXPECT().Stat().Return(stat_mock, nil)
+// 			file_mock.EXPECT().Seek(int64(offset), io.SeekStart).Return(int64(0), nil)
+
+// 			err := seek(file_mock, int64(offset))
+// 			require.Nil(t, err)
+// 		})
+// 	}
+
+// 	t.Run("size_lt_offset", func(t *testing.T) {
+// 		stat_mock := &StatMock{}
+// 		stat_mock.On("Size").Return(offset - 1)
+// 		file_mock := mocks.NewFile(t)
+// 		file_mock.EXPECT().Stat().Return(stat_mock, nil)
+
+// 		err := seek(file_mock, int64(offset))
+// 		require.ErrorIs(t, err, ErrOffsetExceedsFileSize)
+// 	})
+
+// 	t.Run("stat_error", func(t *testing.T) {
+// 		file_mock := mocks.NewFile(t)
+// 		file_mock.EXPECT().Stat().Return(nil, errors.New("Test error"))
+
+// 		err := seek(file_mock, int64(offset))
+// 		require.ErrorIs(t, err, ErrUnsupportedFile)
+// 	})
+
+// 	t.Run("seek_error", func(t *testing.T) {
+// 		stat_mock := &StatMock{}
+// 		stat_mock.On("Size").Return(offset)
+// 		file_mock := mocks.NewFile(t)
+// 		file_mock.EXPECT().Stat().Return(stat_mock, nil)
+// 		returned_err := errors.New("Test error")
+// 		file_mock.EXPECT().Seek(int64(offset), io.SeekStart).Return(0, returned_err)
+
+// 		err := seek(file_mock, int64(offset))
+// 		require.ErrorIs(t, err, returned_err)
+// 	})
+// }
 
 func TestReadWrite(t *testing.T) {
 	limit := 10
