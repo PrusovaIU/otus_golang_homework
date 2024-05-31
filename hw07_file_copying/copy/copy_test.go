@@ -1,19 +1,82 @@
 package copy
 
 import (
+	"bufio"
 	"errors"
 	"io"
 	"io/fs"
+	"os"
 	"testing"
 
 	"otus_golang_homework/hw07_file_copying/copy/mocks"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
 
+// func TestCopy(t *testing.T) {
+
+// }
+
+type CopyTestSuite struct {
+	suite.Suite
+	fromFilePath, toFilePath string
+	fileContent              string
+	toFile                   *os.File
+}
+
+func (suite *CopyTestSuite) deleteFile(filePath string) {
+	if _, err := os.Stat(filePath); err == nil {
+		if err := os.Remove(filePath); err != nil {
+			panic(err)
+		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		panic(err)
+	}
+}
+
+func (suite *CopyTestSuite) SetupTest() {
+	suite.fileContent = "Package suite contains logic for creating testing suite structs and running the methods on those structs as tests. The most useful piece of this package is that you can create setup/teardown methods on your testing suites, which will run before/after the whole suite or individual tests (depending on which interface(s) you implement)."
+	suite.fromFilePath = "from_file_test"
+	suite.toFilePath = "to_file_test"
+	fromFile, err := os.OpenFile(suite.fromFilePath, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		panic(err)
+	}
+	if _, err := fromFile.WriteString(suite.fileContent); err != nil {
+		panic(err)
+	}
+	fromFile.Close()
+	suite.deleteFile(suite.toFilePath)
+}
+
+func (suite *CopyTestSuite) TearDownTest() {
+	suite.toFile.Close()
+	suite.deleteFile(suite.fromFilePath)
+	suite.deleteFile(suite.toFilePath)
+}
+
+func (suite *CopyTestSuite) TestSuccess() {
+	limit := 10
+	err := Copy(suite.fromFilePath, suite.toFilePath, 0, int64(limit))
+	require.NoError(suite.T(), err)
+	toFile, err := os.Open(suite.toFilePath)
+	suite.toFile = toFile
+	require.NoError(suite.T(), err)
+	buffer := bufio.NewReader(toFile)
+	fileContent := []byte{}
+	for i := 0; i < limit; i++ {
+		ibyte, err := buffer.ReadByte()
+		require.NoError(suite.T(), err)
+		fileContent = append(fileContent, ibyte)
+	}
+	fileData := string(fileContent[:])
+	require.Equal(suite.T(), suite.fileContent[:10], fileData)
+}
+
 func TestCopy(t *testing.T) {
-	// Place your code here.
+	suite.Run(t, new(CopyTestSuite))
 }
 
 type StatMock struct {

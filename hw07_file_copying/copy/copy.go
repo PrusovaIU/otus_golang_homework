@@ -55,15 +55,13 @@ func readWrite(bufferReader BufferByteReader, bufferWriter BufferByteWriter, lim
 			}
 			return err
 		}
-		err = bufferWriter.WriteByte(ibyte)
-		if err != nil {
+		if err = bufferWriter.WriteByte(ibyte); err != nil {
 			return err
 		}
 		bar.Add(1)
 	}
 	bar.Finish()
-	err := bufferWriter.Flush()
-	if err != nil {
+	if err := bufferWriter.Flush(); err != nil {
 		return err
 	}
 	return nil
@@ -74,8 +72,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	if err != nil {
 		return err
 	}
-	err = offsetPrepare(fromFile, offset)
-	if err != nil {
+	if err = offsetPrepare(fromFile, offset); err != nil {
 		fromFile.Close()
 		return err
 	}
@@ -85,8 +82,14 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 	fromFileReader := bufio.NewReader(fromFile)
 	toFileWriter := bufio.NewWriter(toFile)
-	readWrite(fromFileReader, toFileWriter, limit)
-	toFile.Close()
-	fromFile.Close()
+	if err := readWrite(fromFileReader, toFileWriter, limit); err != nil {
+		return err
+	}
+	if err := toFile.Close(); err != nil {
+		return err
+	}
+	if err := fromFile.Close(); err != nil {
+		return err
+	}
 	return nil
 }
