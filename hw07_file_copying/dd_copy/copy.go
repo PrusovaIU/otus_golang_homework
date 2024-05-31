@@ -81,8 +81,15 @@ func readWrite(bufferReader BufferByteReader, bufferWriter BufferByteWriter, lim
 	return nil
 }
 
+func closeFile(file *os.File) {
+	if err := file.Close(); err != nil {
+		fmt.Println("Cannot close file", err)
+	}
+}
+
 func Copy(fromPath, toPath string, offset, limit int64) error {
 	fromFile, err := os.Open(fromPath)
+	defer closeFile(fromFile)
 	if err != nil {
 		return err
 	}
@@ -92,6 +99,8 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 	if limit == 0 {
 		limit = fromFileSize
+	} else if offset+limit > fromFileSize {
+		limit = fromFileSize - offset
 	}
 	if err = seek(fromFile, offset, fromFileSize); err != nil {
 		fromFile.Close()
@@ -104,13 +113,12 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	fromFileReader := bufio.NewReader(fromFile)
 	toFileWriter := bufio.NewWriter(toFile)
 	if err := readWrite(fromFileReader, toFileWriter, limit); err != nil {
+		closeFile(toFile)
+		if err := os.Remove(toPath); err != nil {
+			fmt.Println("Cannot delete toFile", err)
+		}
 		return err
 	}
-	if err := toFile.Close(); err != nil {
-		return err
-	}
-	if err := fromFile.Close(); err != nil {
-		return err
-	}
+	closeFile(toFile)
 	return nil
 }
