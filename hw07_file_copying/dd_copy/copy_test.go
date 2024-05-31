@@ -146,7 +146,7 @@ func TestOffsetPrepare(t *testing.T) {
 }
 
 func TestReadWrite(t *testing.T) {
-	offset := 10
+	limit := 10
 	read_byte := byte(1)
 	returned_err := errors.New("Test error")
 
@@ -157,15 +157,15 @@ func TestReadWrite(t *testing.T) {
 		buffer_writer.EXPECT().WriteByte(read_byte).Return(nil)
 		buffer_writer.EXPECT().Flush().Return(nil)
 
-		err := readWrite(buffer_reader, buffer_writer, int64(offset))
+		err := readWrite(buffer_reader, buffer_writer, int64(limit))
 		require.NoError(t, err)
 
-		buffer_reader.AssertNumberOfCalls(t, "ReadByte", offset)
-		buffer_writer.AssertNumberOfCalls(t, "WriteByte", offset)
+		buffer_reader.AssertNumberOfCalls(t, "ReadByte", limit)
+		buffer_writer.AssertNumberOfCalls(t, "WriteByte", limit)
 	})
 
 	t.Run("stop_by_eof", func(t *testing.T) {
-		bytes_in_file := int(offset / 2)
+		bytes_in_file := int(limit / 2)
 		buffer_reader := mocks.NewBufferByteReader(t)
 		for i := 0; i < bytes_in_file; i++ {
 			buffer_reader.EXPECT().ReadByte().Return(read_byte, nil).Once()
@@ -175,7 +175,7 @@ func TestReadWrite(t *testing.T) {
 		buffer_writer.EXPECT().WriteByte(read_byte).Return(nil)
 		buffer_writer.EXPECT().Flush().Return(nil)
 
-		err := readWrite(buffer_reader, buffer_writer, int64(offset))
+		err := readWrite(buffer_reader, buffer_writer, int64(limit))
 		require.NoError(t, err)
 
 		buffer_reader.AssertNumberOfCalls(t, "ReadByte", bytes_in_file+1)
@@ -187,7 +187,7 @@ func TestReadWrite(t *testing.T) {
 		buffer_reader.EXPECT().ReadByte().Return(0, returned_err)
 		buffer_writer := mocks.NewBufferByteWriter(t)
 
-		err := readWrite(buffer_reader, buffer_writer, int64(offset))
+		err := readWrite(buffer_reader, buffer_writer, int64(limit))
 		require.ErrorIs(t, err, returned_err)
 
 		buffer_writer.AssertNotCalled(t, "WriteByte")
@@ -200,7 +200,7 @@ func TestReadWrite(t *testing.T) {
 		buffer_writer := mocks.NewBufferByteWriter(t)
 		buffer_writer.EXPECT().WriteByte(read_byte).Return(returned_err)
 
-		err := readWrite(buffer_reader, buffer_writer, int64(offset))
+		err := readWrite(buffer_reader, buffer_writer, int64(limit))
 		require.ErrorIs(t, err, returned_err)
 
 		buffer_writer.AssertNotCalled(t, "Flush")
@@ -213,7 +213,7 @@ func TestReadWrite(t *testing.T) {
 		buffer_writer.EXPECT().WriteByte(read_byte).Return(nil)
 		buffer_writer.EXPECT().Flush().Return(returned_err)
 
-		err := readWrite(buffer_reader, buffer_writer, int64(offset))
+		err := readWrite(buffer_reader, buffer_writer, int64(limit))
 		require.ErrorIs(t, err, returned_err)
 	})
 }

@@ -46,15 +46,12 @@ type BufferByteWriter interface {
 	Flush() error
 }
 
-func barInc(bar *progressbar.ProgressBar) {
-	if err := bar.Add(1); err != nil {
-		fmt.Println("Cannot show bar")
-	}
-}
-
 func readWrite(bufferReader BufferByteReader, bufferWriter BufferByteWriter, limit int64) error {
-	bar := progressbar.Default(limit + 1)
-	for i := 0; i < int(limit); i++ {
+	bar := progressbar.Default(limit)
+	for i := 0; true; i++ {
+		if limit != 0 && int64(i) >= limit {
+			break
+		}
 		ibyte, err := bufferReader.ReadByte()
 		if err != nil {
 			if errors.Is(err, io.EOF) {
@@ -65,9 +62,10 @@ func readWrite(bufferReader BufferByteReader, bufferWriter BufferByteWriter, lim
 		if err = bufferWriter.WriteByte(ibyte); err != nil {
 			return err
 		}
-		barInc(bar)
+		if err := bar.Add(1); err != nil {
+			fmt.Println("Cannot show bar")
+		}
 	}
-	barInc(bar)
 	if err := bar.Finish(); err != nil {
 		fmt.Println("Cannot show bar")
 	}
