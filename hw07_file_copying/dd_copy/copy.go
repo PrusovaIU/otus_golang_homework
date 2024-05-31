@@ -1,8 +1,9 @@
-package copy
+package dd_copy
 
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 
@@ -45,12 +46,18 @@ type BufferByteWriter interface {
 	Flush() error
 }
 
+func barInc(bar *progressbar.ProgressBar) {
+	if err := bar.Add(1); err != nil {
+		fmt.Println("Cannot show bar")
+	}
+}
+
 func readWrite(bufferReader BufferByteReader, bufferWriter BufferByteWriter, limit int64) error {
 	bar := progressbar.Default(limit + 1)
 	for i := 0; i < int(limit); i++ {
 		ibyte, err := bufferReader.ReadByte()
 		if err != nil {
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				break
 			}
 			return err
@@ -58,10 +65,12 @@ func readWrite(bufferReader BufferByteReader, bufferWriter BufferByteWriter, lim
 		if err = bufferWriter.WriteByte(ibyte); err != nil {
 			return err
 		}
-		bar.Add(1)
+		barInc(bar)
 	}
-	bar.Add(1)
-	bar.Finish()
+	barInc(bar)
+	if err := bar.Finish(); err != nil {
+		fmt.Println("Cannot show bar")
+	}
 	if err := bufferWriter.Flush(); err != nil {
 		return err
 	}
