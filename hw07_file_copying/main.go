@@ -2,6 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
+
+	"github.com/PrusovaIU/otus_golang_homework/hw07_file_copying/dd_copy"
 )
 
 var (
@@ -18,5 +21,9 @@ func init() {
 
 func main() {
 	flag.Parse()
-	// Place your code here.
+	fmt.Println(from, to)
+	err := dd_copy.Copy(from, to, offset, limit)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
