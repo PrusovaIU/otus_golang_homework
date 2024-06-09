@@ -28,6 +28,7 @@ type EnvFile interface {
 	ReadLine() (line []byte, isPrefix bool, err error)
 }
 
+// Read the file and form value for env
 func readFile(file EnvFile) (EnvValue, error) {
 	line, _, err := file.ReadLine()
 	if err != nil {
