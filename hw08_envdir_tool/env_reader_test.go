@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"os"
 	"testing"
 
 	"github.com/PrusovaIU/otus_golang_homework/hw08_envdir_tool/mocks"
@@ -52,5 +53,20 @@ func TestReadFile(t *testing.T) {
 }
 
 func TestReadDir(t *testing.T) {
-	// Place your code here
+	dir_current_path, err := os.Getwd()
+	dir_path := dir_current_path + "\\testdata\\env"
+	require.NoError(t, err)
+	result, err := ReadDir(dir_path)
+	require.NoError(t, err)
+
+	checkValue := func(value EnvValue, exValue string, exNeesRemove bool) {
+		require.Equal(t, exValue, value.Value)
+		require.Equal(t, exNeesRemove, value.NeedRemove)
+	}
+
+	checkValue(result["BAR"], "bar", false)
+	checkValue(result["EMPTY"], "", true)
+	checkValue(result["FOO"], "foo\nwith new line", false)
+	checkValue(result["HELLO"], `"hello"`, false)
+	checkValue(result["UNSET"], "", true)
 }

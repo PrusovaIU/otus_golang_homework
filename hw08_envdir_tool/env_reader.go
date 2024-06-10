@@ -2,7 +2,9 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -31,13 +33,16 @@ type EnvFile interface {
 // Read the file and form value for env
 func readFile(file EnvFile) (EnvValue, error) {
 	line, _, err := file.ReadLine()
-	if err != nil {
+	if err != nil && !errors.Is(err, io.EOF) {
 		return NewEnvValue("", false), err
 	}
-	if len(line) == 0 {
+	forbidden_symbols := regexp.MustCompile(`(^\s+)||(\s+$)`)
+	value := forbidden_symbols.ReplaceAllString(string(line), "")
+	value = strings.Replace(value, "\x00", "\n", -1)
+	if len(value) == 0 {
 		return NewEnvValue("", true), nil
 	} else {
-		return NewEnvValue(string(line), false), nil
+		return NewEnvValue(value, false), nil
 	}
 }
 
@@ -45,12 +50,12 @@ type EnvFileInfo interface {
 	Name() string
 }
 
-func getParametername(info EnvFileInfo) string {
-	fileName := info.Name()
-	forbidden_symbols := regexp.MustCompile(`[= ]`)
-	fileName = forbidden_symbols.ReplaceAllString(fileName, "")
-	return strings.ReplaceAll(fileName, "0x00", "")
-}
+// func getParameterName(info EnvFileInfo) string {
+// 	fileName := info.Name()
+// 	forbidden_symbols := regexp.MustCompile(`[= ]`)
+// 	fileName = forbidden_symbols.ReplaceAllString(fileName, "")
+// 	return strings.ReplaceAll(fileName, "0x00", "\n")
+// }
 
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
@@ -71,10 +76,13 @@ func ReadDir(dir string) (Environment, error) {
 			if err != nil {
 				return err
 			}
-			envName := getParametername(info)
+			envName := info.Name()
 			envMap[envName] = envValue
 		}
 		return nil
 	})
-	return nil, err
+	if err != nil && !errors.Is(err, io.EOF) {
+		return nil, err
+	}
+	return envMap, nil
 }
