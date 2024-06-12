@@ -37,7 +37,7 @@ func processManage(process Process) error {
 }
 
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
-func RunCmd(cmd []string, env Environment) (returnCode int) {
+func RunCmd(cmd string, args []string, env Environment) (returnCode int) {
 	checkErr := func(err error) int {
 		fmt.Println(err)
 		return 1
@@ -45,7 +45,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	if err := formEnv(env); err != nil {
 		return checkErr(err)
 	}
-	process := exec.Command(cmd[0], cmd[1:]...)
+	process := exec.Command(cmd, args...)
 	process.Env = os.Environ()
 	process.Stderr = os.Stderr
 	process.Stdout = os.Stdout

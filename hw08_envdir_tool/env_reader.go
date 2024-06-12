@@ -30,20 +30,19 @@ type EnvFile interface {
 	ReadLine() (line []byte, isPrefix bool, err error)
 }
 
-// Read the file and form value for env
+// Read the file and form value for env.
 func readFile(file EnvFile) (EnvValue, error) {
 	line, _, err := file.ReadLine()
 	if err != nil && !errors.Is(err, io.EOF) {
 		return NewEnvValue("", false), err
 	}
-	forbidden_symbols := regexp.MustCompile(`(^\s+)||(\s+$)`)
-	value := forbidden_symbols.ReplaceAllString(string(line), "")
-	value = strings.Replace(value, "\x00", "\n", -1)
+	forbiddenSymbols := regexp.MustCompile(`(^\s+)||(\s+$)`)
+	value := forbiddenSymbols.ReplaceAllString(string(line), "")
+	value = strings.ReplaceAll(value, "\x00", "\n")
 	if len(value) == 0 {
 		return NewEnvValue("", true), nil
-	} else {
-		return NewEnvValue(value, false), nil
 	}
+	return NewEnvValue(value, false), nil
 }
 
 type EnvFileInfo interface {

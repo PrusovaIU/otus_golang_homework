@@ -53,10 +53,10 @@ func TestReadFile(t *testing.T) {
 }
 
 func TestReadDir(t *testing.T) {
-	dir_current_path, err := os.Getwd()
-	dir_path := dir_current_path + "\\testdata\\env"
+	dirCurrentPath, err := os.Getwd()
+	dirPath := dirCurrentPath + "\\testdata\\env"
 	require.NoError(t, err)
-	result, err := ReadDir(dir_path)
+	result, err := ReadDir(dirPath)
 	require.NoError(t, err)
 
 	checkValue := func(value EnvValue, exValue string, exNeesRemove bool) {

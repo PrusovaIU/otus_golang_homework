@@ -28,7 +28,8 @@ func TestFormEnv(t *testing.T) {
 		require.False(t, exists)
 	})
 
-	test_not_remove := func(t *testing.T) {
+	testNotRemove := func(t *testing.T) {
+		t.Helper()
 		defer cleanEnv(paramName)
 		exValue := "test_value"
 		envValue := NewEnvValue(exValue, false)
@@ -43,11 +44,11 @@ func TestFormEnv(t *testing.T) {
 	t.Run("exists", func(t *testing.T) {
 		err := os.Setenv(paramName, "old_value")
 		require.NoError(t, err)
-		test_not_remove(t)
+		testNotRemove(t)
 	})
 
 	t.Run("not_exists", func(t *testing.T) {
-		test_not_remove(t)
+		testNotRemove(t)
 	})
 }
 
@@ -81,6 +82,6 @@ func TestProcessManage(t *testing.T) {
 	})
 }
 
-func TestRunCmd(t *testing.T) {
-	// Place your code here
-}
+// func TestRunCmd(t *testing.T) {
+// 	// Place your code here
+// }

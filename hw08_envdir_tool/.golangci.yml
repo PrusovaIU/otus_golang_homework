@@ -1,0 +1,7 @@
+linters-settings:
+  depguard:
+    rules:
+      main:
+        allow:
+          - github.com/stretchr/testify/require
+          - github.com/PrusovaIU/otus_golang_homework/hw08_envdir_tool/mocks
