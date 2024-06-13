@@ -59,6 +59,11 @@ func ReadDir(dir string) (Environment, error) {
 			return err
 		}
 		if path != dir {
+			envName := info.Name()
+			if strings.Contains(envName, "=") {
+				fmt.Println("Name of file can not contain \"=\"")
+				return errors.New("file name error")
+			}
 			file, err := os.Open(path)
 			if err != nil {
 				return err
@@ -68,7 +73,6 @@ func ReadDir(dir string) (Environment, error) {
 			if err != nil {
 				return err
 			}
-			envName := info.Name()
 			envMap[envName] = envValue
 		}
 		return nil

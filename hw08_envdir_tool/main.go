@@ -10,12 +10,12 @@ func main() {
 	command := os.Args[2]
 	args := os.Args[3:]
 
+	var exitCode int
 	environment, err := ReadDir(envDirPath)
 	if err == nil {
-		RunCmd(command, args, environment)
-		// fmt.Println("Exit code: ", exitCode)
+		exitCode = RunCmd(command, args, environment)
 	} else {
 		fmt.Println(err)
 	}
-
+	os.Exit(exitCode)
 }
