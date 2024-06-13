@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/PrusovaIU/otus_golang_homework/hw08_envdir_tool/mocks"
@@ -54,7 +55,8 @@ func TestReadFile(t *testing.T) {
 
 func TestReadDir(t *testing.T) {
 	dirCurrentPath, err := os.Getwd()
-	dirPath := dirCurrentPath + "\\testdata\\env"
+	// dirPath := dirCurrentPath + "/testdata/env"
+	dirPath := filepath.Join(dirCurrentPath, "testdata", "env")
 	require.NoError(t, err)
 	result, err := ReadDir(dirPath)
 	require.NoError(t, err)
