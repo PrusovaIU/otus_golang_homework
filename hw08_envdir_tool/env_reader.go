@@ -36,7 +36,7 @@ func readFile(file EnvFile) (EnvValue, error) {
 	if err != nil && !errors.Is(err, io.EOF) {
 		return NewEnvValue("", false), err
 	}
-	forbiddenSymbols := regexp.MustCompile(`(^\s+)||(\s+$)`)
+	forbiddenSymbols := regexp.MustCompile(`(\s+$)`)
 	value := forbiddenSymbols.ReplaceAllString(string(line), "")
 	value = strings.ReplaceAll(value, "\x00", "\n")
 	if len(value) == 0 {

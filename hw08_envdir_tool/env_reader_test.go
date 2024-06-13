@@ -55,9 +55,8 @@ func TestReadFile(t *testing.T) {
 
 func TestReadDir(t *testing.T) {
 	dirCurrentPath, err := os.Getwd()
-	// dirPath := dirCurrentPath + "/testdata/env"
-	dirPath := filepath.Join(dirCurrentPath, "testdata", "env")
 	require.NoError(t, err)
+	dirPath := filepath.Join(dirCurrentPath, "testdata", "env")
 	result, err := ReadDir(dirPath)
 	require.NoError(t, err)
 
@@ -68,7 +67,7 @@ func TestReadDir(t *testing.T) {
 
 	checkValue(result["BAR"], "bar", false)
 	checkValue(result["EMPTY"], "", true)
-	checkValue(result["FOO"], "foo\nwith new line", false)
+	checkValue(result["FOO"], "   foo\nwith new line", false)
 	checkValue(result["HELLO"], `"hello"`, false)
 	checkValue(result["UNSET"], "", true)
 }
