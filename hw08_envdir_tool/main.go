@@ -12,8 +12,8 @@ func main() {
 
 	environment, err := ReadDir(envDirPath)
 	if err == nil {
-		exitCode := RunCmd(command, args, environment)
-		fmt.Println("Exit code: ", exitCode)
+		RunCmd(command, args, environment)
+		// fmt.Println("Exit code: ", exitCode)
 	} else {
 		fmt.Println(err)
 	}

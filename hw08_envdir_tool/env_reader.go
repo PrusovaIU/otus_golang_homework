@@ -49,13 +49,6 @@ type EnvFileInfo interface {
 	Name() string
 }
 
-// func getParameterName(info EnvFileInfo) string {
-// 	fileName := info.Name()
-// 	forbidden_symbols := regexp.MustCompile(`[= ]`)
-// 	fileName = forbidden_symbols.ReplaceAllString(fileName, "")
-// 	return strings.ReplaceAll(fileName, "0x00", "\n")
-// }
-
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
 func ReadDir(dir string) (Environment, error) {
