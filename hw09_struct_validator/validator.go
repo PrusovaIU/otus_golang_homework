@@ -4,48 +4,48 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
-func validateString(fieldValue reflect.Value, tag string) error {
+func validateString(fieldValue reflect.Value, cond_name string, cond_valueL string) error {
 	return nil
 }
 
-func validateInt(fieldValue reflect.Value, tag string) error {
+func validateInt(fieldValue reflect.Value, cond_name string, cond_valueL string) error {
 	return nil
 }
 
 func validateSlice(fieldValue reflect.Value, fieldType reflect.StructField, tag string) ValidationErrors {
 	var errs ValidationErrors = []ValidationError{}
-	var validateFunc func(reflect.Value, string) error = nil
-	switch fieldType.Type.Elem().Kind() {
-	case reflect.Int:
-		validateFunc = validateInt
-	case reflect.String:
-		validateFunc = validateString
-	}
-	if validateFunc != nil {
-		for i := 0; i < fieldValue.Len(); i++ {
-			elValue := fieldValue.Index(i)
-			if err := validateFunc(elValue, tag); err != nil {
-				validationErr := ValidationError{
-					Field: fmt.Sprintf("%s[%d]", fieldType.Name, i),
-					Err:   err,
-				}
-				errs = append(errs, validationErr)
-			}
-		}
+	for i := 0; i < fieldValue.Len(); i++ {
+		elValue := fieldValue.Index(i)
+		err := validateNotSlice(elValue, fieldType.Type.Elem().Kind(), fmt.Sprintf("%s[%d]", fieldType.Name, i), tag)
+		errs = append(errs, err)
 	}
 	return errs
+}
+
+func parseTag(tag string) (string, string, error) {
+	split := strings.Split(tag, ":")
+	if len(split) != 2 {
+		return "", "", errors.New("wrong tag format")
+	}
+	condition := strings.Trim(split[0], " ")
+	value := strings.Trim(split[1], " ")
+	return condition, value, nil
 }
 
 func validateNotSlice(fieldValue reflect.Value, fieldType reflect.Kind, fieldName string, tag string) ValidationError {
 	var err error = nil
 	var validationErr = ValidationError{}
-	switch fieldType {
-	case reflect.String:
-		err = validateString(fieldValue, tag)
-	case reflect.Int:
-		err = validateInt(fieldValue, tag)
+	condition, condition_value, err := parseTag(tag)
+	if err == nil {
+		switch fieldType {
+		case reflect.String:
+			err = validateString(fieldValue, condition, condition_value)
+		case reflect.Int:
+			err = validateInt(fieldValue, condition, condition_value)
+		}
 	}
 	if err != nil {
 		validationErr = ValidationError{
@@ -99,7 +99,7 @@ func Validate(v interface{}) ValidationErrors {
 	return errs
 }
 
-func main() {
-	a := Validate()
-	fmt.Println(a)
-}
+// func main() {
+// 	a := Validate()
+// 	fmt.Println(a)
+// }
