@@ -74,16 +74,28 @@ func validateField(fieldValue reflect.Value, fieldType reflect.StructField) Vali
 	return errs
 }
 
-func Validate() error {
-	var errs ValidationErrors = []ValidationError{}
-	errs = append(errs, ValidationError{
-		Field: "field_1",
-		Err:   errors.New("test_error_1"),
-	})
-	errs = append(errs, ValidationError{
-		Field: "field_2",
-		Err:   errors.New("test_error_2"),
-	})
+func Validate(v interface{}) ValidationErrors {
+	errs := []ValidationError{}
+
+	vValue := reflect.ValueOf(v)
+	vType := reflect.TypeOf(v)
+
+	if vValue.Kind() != reflect.Struct {
+		errs = append(errs, ValidationError{
+			Field: "Root",
+			Err:   errors.New("Expected struct"),
+		})
+		return errs
+	}
+
+	for i := 0; i < vValue.NumField(); i++ {
+		fieldValue := vValue.Field(i)
+		fieldType := vType.Field(i)
+
+		fieldErrs := validateField(fieldValue, fieldType)
+		errs = append(errs, fieldErrs...)
+	}
+
 	return errs
 }
 
