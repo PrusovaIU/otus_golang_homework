@@ -7,8 +7,24 @@ import (
 	"strings"
 )
 
+const (
+	len_const = "len"
+	regexp    = "regexp"
+	in        = "in"
+	min       = "min"
+	max       = "max"
+)
+
 func validateString(fieldValue reflect.Value, cond_name string, cond_valueL string) error {
-	return nil
+	var err error = nil
+	switch cond_name {
+	case len_const:
+		_ = 1
+	case regexp:
+		_ = 2
+	case in:
+		_ = 3
+	}
 }
 
 func validateInt(fieldValue reflect.Value, cond_name string, cond_valueL string) error {
@@ -83,7 +99,7 @@ func Validate(v interface{}) ValidationErrors {
 	if vValue.Kind() != reflect.Struct {
 		errs = append(errs, ValidationError{
 			Field: "Root",
-			Err:   errors.New("Expected struct"),
+			Err:   errors.New("expected struct"),
 		})
 		return errs
 	}
