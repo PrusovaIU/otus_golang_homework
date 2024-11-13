@@ -7,30 +7,6 @@ import (
 	"strings"
 )
 
-// const (
-// 	len_const = "len"
-// 	regexp    = "regexp"
-// 	in        = "in"
-// 	min       = "min"
-// 	max       = "max"
-// )
-
-// func validateString(fieldValue reflect.Value, cond_name string, cond_valueL string) error {
-// 	var err error = nil
-// 	switch cond_name {
-// 	case len_const:
-// 		_ = 1
-// 	case regexp:
-// 		_ = 2
-// 	case in:
-// 		_ = 3
-// 	}
-// }
-
-func validateInt(fieldValue reflect.Value, cond_name string, cond_valueL string) error {
-	return nil
-}
-
 func validateSlice(fieldValue reflect.Value, fieldType reflect.StructField, tag string) ValidationErrors {
 	var errs ValidationErrors = []ValidationError{}
 	for i := 0; i < fieldValue.Len(); i++ {
@@ -59,7 +35,7 @@ func validateNotSlice(fieldValue reflect.Value, fieldType reflect.Kind, fieldNam
 		switch fieldType {
 		case reflect.String:
 			err = validateString(fieldValue, condition, condition_value)
-		case reflect.Int:
+		case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			err = validateInt(fieldValue, condition, condition_value)
 		}
 	}

@@ -8,12 +8,6 @@ import (
 	"strings"
 )
 
-const (
-	len_cond    = "len"
-	regexp_cond = "regexp"
-	in          = "in"
-)
-
 func validateLen(value string, condValue string) error {
 	expectedLen, err := strconv.Atoi(condValue)
 	if err != nil {
