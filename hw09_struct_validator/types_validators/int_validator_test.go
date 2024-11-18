@@ -16,6 +16,7 @@ func TestSuccessValidateMinMax(t *testing.T) {
 	}{
 		{name: "min", value: 10, condName: "min", condValue: "5"},
 		{name: "max", value: 10, condName: "max", condValue: "15"},
+		{name: "unknown_cond_name", value: 10, condName: "unknonw", condValue: "wrong_format"},
 	}
 	for _, tc := range tasks {
 		tc := tc
@@ -45,5 +46,4 @@ func TestCondValueWrongFormat(t *testing.T) {
 			require.Error(t, err)
 		})
 	}
-
 }
