@@ -1,4 +1,4 @@
-package main
+package types_validators
 
 const (
 	len_cond    = "len"
