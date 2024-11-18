@@ -2,27 +2,44 @@ package types_validators
 
 import (
 	"fmt"
-	"reflect"
 	"strconv"
 	"strings"
 )
 
+func checkGreat(value, minValue int64) error {
+	if value < minValue {
+		return fmt.Errorf("value must be great than %d; input: %d", minValue, value)
+	}
+	return nil
+}
+
+func checkLess(value, maxValue int64) error {
+	if value > maxValue {
+		return fmt.Errorf("value must be less than %d; input: %d", maxValue, value)
+	}
+	return nil
+}
+
+type IntInterface interface {
+	Int() int64
+}
+
 type IntValidator struct{}
 
 func (iv IntValidator) validateMinMax(value int64, condName string, condValue string) error {
-	intCondValue, err := strconv.Atoi(condValue)
-	if err != nil {
-		return fmt.Errorf("wrong tag format: %s; input: %s", err, condValue)
-	}
+	var checkFunc func(int64, int64) error = nil
 	switch condName {
 	case min:
-		if value < int64(intCondValue) {
-			return fmt.Errorf("value must be less than %d; input: %d", intCondValue, value)
-		}
+		checkFunc = checkGreat
 	case max:
-		if value > int64(intCondValue) {
-			return fmt.Errorf("value must be greater than %d; input: %d", intCondValue, value)
+		checkFunc = checkLess
+	}
+	if checkFunc != nil {
+		intCondValue, err := strconv.Atoi(condValue)
+		if err != nil {
+			return fmt.Errorf("wrong tag format: %s; input: %s", err, condValue)
 		}
+		return checkFunc(value, int64(intCondValue))
 	}
 	return nil
 }
@@ -47,7 +64,7 @@ func (iv IntValidator) validateIn(value int64, condValue string) error {
 	return nil
 }
 
-func (iv IntValidator) Validate(fieldValue reflect.Value, condName string, condValue string) error {
+func (iv IntValidator) Validate(fieldValue IntInterface, condName string, condValue string) error {
 	var err error = nil
 	value := fieldValue.Int()
 	if condName == in {
