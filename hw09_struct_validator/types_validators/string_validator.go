@@ -2,11 +2,14 @@ package types_validators
 
 import (
 	"fmt"
-	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
 )
+
+type StringInterface interface {
+	String() string
+}
 
 type StringValidator struct{}
 
@@ -43,7 +46,7 @@ func (strv StringValidator) validateIn(value string, condValue string) error {
 	return fmt.Errorf("inputed value (%s) is not in %s", value, condValue)
 }
 
-func (strv StringValidator) Validate(fieldValue reflect.Value, condName string, condValue string) error {
+func (strv StringValidator) Validate(fieldValue StringInterface, condName string, condValue string) error {
 	var err error = nil
 	value := fieldValue.String()
 	switch condName {

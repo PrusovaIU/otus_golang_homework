@@ -50,11 +50,11 @@ func (iv IntValidator) validateIn(value int64, condValue string) error {
 	if split_len != 2 {
 		return fmt.Errorf("condition must have only 2 values, but %d values have been get", split_len)
 	}
-	min_value, err := strconv.Atoi(split[0])
+	min_value, err := strconv.Atoi(strings.TrimSpace(split[0]))
 	if err != nil {
 		return fmt.Errorf("condition must be digit, but %s has been get", split[0])
 	}
-	max_value, err := strconv.Atoi(split[1])
+	max_value, err := strconv.Atoi(strings.TrimSpace(split[1]))
 	if err != nil {
 		return fmt.Errorf("condition must be digit, but %s has been get", split[0])
 	}
