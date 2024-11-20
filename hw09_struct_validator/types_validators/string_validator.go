@@ -14,7 +14,7 @@ type StringInterface interface {
 type StringValidator struct{}
 
 func (strv StringValidator) validateLen(value string, condValue string) error {
-	expectedLen, err := strconv.Atoi(condValue)
+	expectedLen, err := strconv.Atoi(strings.TrimSpace(condValue))
 	if err != nil {
 		return fmt.Errorf("wrong tag format: %s; input: %s", err, condValue)
 	}
@@ -37,8 +37,8 @@ func (strv StringValidator) validateRegexp(value string, condValue string) error
 }
 
 func (strv StringValidator) validateIn(value string, condValue string) error {
-	for _, el := range strings.Split(value, ",") {
-		el = strings.Trim(el, " ")
+	for _, el := range strings.Split(condValue, ",") {
+		el = strings.TrimSpace(el)
 		if value == el {
 			return nil
 		}

@@ -8,13 +8,17 @@ import (
 	"github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/types_validators"
 )
 
-type TypeValidatorInterface interface {
-	Validate(reflect.Value, string, string) error
+type IntValidatorInterface interface {
+	Validate(types_validators.IntInterface, string, string) error
+}
+
+type StringValidatorInterface interface {
+	Validate(types_validators.StringInterface, string, string) error
 }
 
 type ElementValidator struct {
-	IntValidator    TypeValidatorInterface
-	StringValidator TypeValidatorInterface
+	IntValidator    IntValidatorInterface
+	StringValidator StringValidatorInterface
 }
 
 func NewElementValidator() ElementValidator {

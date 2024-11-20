@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestValidateMinMaxSuccess(t *testing.T) {
+func TestIntValidatorSuccess(t *testing.T) {
 	tasks := []struct {
 		name      string
 		value     int64
@@ -36,7 +36,7 @@ func TestValidateMinMaxSuccess(t *testing.T) {
 	}
 }
 
-func TestValidateMinMaxCondValueWrongFormat(t *testing.T) {
+func TestIntValidatorCondValueWrongFormat(t *testing.T) {
 	tasks := []struct {
 		name      string
 		condName  string
@@ -61,7 +61,7 @@ func TestValidateMinMaxCondValueWrongFormat(t *testing.T) {
 	}
 }
 
-func TestInvalidValue(t *testing.T) {
+func TestIntValidatorInvalidValue(t *testing.T) {
 	tasks := []struct {
 		name      string
 		value     int64
@@ -76,7 +76,7 @@ func TestInvalidValue(t *testing.T) {
 
 	for _, tc := range tasks {
 		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run("invalid_value_"+tc.name, func(t *testing.T) {
 			fieldValueMock := mocks.NewIntInterface(t)
 			fieldValueMock.EXPECT().Int().Return(tc.value)
 
