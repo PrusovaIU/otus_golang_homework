@@ -46,7 +46,7 @@ func (ev ElementValidator) Validate(fieldValue reflect.Value, fieldType reflect.
 		switch fieldType {
 		case reflect.String:
 			err = ev.StringValidator.Validate(fieldValue, condition, condition_value)
-		case reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			err = ev.IntValidator.Validate(fieldValue, condition, condition_value)
 		}
 	}
