@@ -31,10 +31,10 @@ func NewElementValidator() ElementValidator {
 func (ev ElementValidator) parseTag(tag string) (string, string, error) {
 	split := strings.Split(tag, ":")
 	if len(split) != 2 {
-		return "", "", errors.New("wrong tag format")
+		return "", "", errors.New("wrong tag format. Tag must be \"name: value\"")
 	}
-	condition := strings.Trim(split[0], " ")
-	value := strings.Trim(split[1], " ")
+	condition := strings.TrimSpace(split[0])
+	value := strings.TrimSpace(split[1])
 	return condition, value, nil
 }
 
