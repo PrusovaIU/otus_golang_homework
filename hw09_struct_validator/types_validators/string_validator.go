@@ -13,6 +13,12 @@ type StringInterface interface {
 
 type StringValidator struct{}
 
+// validateLen проверяет, что длина строки равна ожидаемой длине.
+// Входные параметры:
+// value - строка для проверки
+// condValue - ожидаемая длина строки
+// Возвращаемое значение:
+// error - ошибка, если длина строки не равна ожидаемой длине
 func (strv StringValidator) validateLen(value string, condValue string) error {
 	expectedLen, err := strconv.Atoi(strings.TrimSpace(condValue))
 	if err != nil {
@@ -25,6 +31,12 @@ func (strv StringValidator) validateLen(value string, condValue string) error {
 	return nil
 }
 
+// validateRegexp проверяет, что строка соответствует регулярному выражению.
+// Входные параметры:
+// value - строка для проверки
+// condValue - регулярное выражение
+// Возвращаемое значение:
+// error - ошибка, если строка не соответствует регулярному выражению
 func (strv StringValidator) validateRegexp(value string, condValue string) error {
 	condRegexp, err := regexp.Compile(condValue)
 	if err != nil {
@@ -36,6 +48,12 @@ func (strv StringValidator) validateRegexp(value string, condValue string) error
 	return nil
 }
 
+// validateIn проверяет, что значение находится в заданном списке.
+// Входные параметры:
+// value - значение для проверки
+// condValue - список значений
+// Возвращаемое значение:
+// error - ошибка, если значение не находится в списке
 func (strv StringValidator) validateIn(value string, condValue string) error {
 	for _, el := range strings.Split(condValue, ",") {
 		el = strings.TrimSpace(el)
@@ -46,6 +64,13 @@ func (strv StringValidator) validateIn(value string, condValue string) error {
 	return fmt.Errorf("inputed value (%s) is not in %s", value, condValue)
 }
 
+// Validate проверяет значение типа string на соответствие заданному условию.
+// Входные параметры:
+// fieldValue - значение для проверки
+// condName - имя условия
+// condValue - значение условия
+// Возвращаемое значение:
+// error - ошибка, если значение не соответствует условию
 func (strv StringValidator) Validate(fieldValue StringInterface, condName string, condValue string) error {
 	var err error = nil
 	value := fieldValue.String()

@@ -28,16 +28,31 @@ func NewElementValidator() ElementValidator {
 	return ev
 }
 
+// parseTag разбирает тег валидации на условие и значение.
+// Входной параметр:
+// tag - тег валидации
+// Возвращаемые значения:
+// condition - условие валидации
+// value - значение для проверки
+// error - ошибка, если тег валидации имеет неверный формат
 func (ev ElementValidator) parseTag(tag string) (string, string, error) {
 	split := strings.Split(tag, ":")
 	if len(split) != 2 {
-		return "", "", errors.New("wrong tag format. Tag must be \"name: value\"")
+		return "", "", errors.New("invalid tag format")
 	}
 	condition := strings.TrimSpace(split[0])
 	value := strings.TrimSpace(split[1])
 	return condition, value, nil
 }
 
+// Validate проверяет значение поля на соответствие заданному в теге условию.
+// Входные параметры:
+// fieldValue - значение поля
+// fieldType - тип поля
+// fieldName - имя поля
+// tag - тег валидации
+// Возвращаемое значение:
+// ValidationError - структура с информацией о возможной ошибке валидации
 func (ev ElementValidator) Validate(fieldValue reflect.Value, fieldType reflect.Kind, fieldName string, tag string) ValidationError {
 	var err error = nil
 	var validationErr = ValidationError{}

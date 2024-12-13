@@ -6,6 +6,12 @@ import (
 	"strings"
 )
 
+// checkGreat проверяет, что значение больше минимального значения.
+// Входные параметры:
+// value - значение для проверки
+// minValue - минимальное значение
+// Возвращаемое значение:
+// error - ошибка, если значение меньше минимального значения
 func checkGreat(value, minValue int64) error {
 	if value < minValue {
 		return fmt.Errorf("value must be great than %d; input: %d", minValue, value)
@@ -13,6 +19,12 @@ func checkGreat(value, minValue int64) error {
 	return nil
 }
 
+// checkLess проверяет, что значение меньше максимального значения.
+// Входные параметры:
+// value - значение для проверки
+// maxValue - максимальное значение
+// Возвращаемое значение:
+// error - ошибка, если значение больше максимального значения
 func checkLess(value, maxValue int64) error {
 	if value > maxValue {
 		return fmt.Errorf("value must be less than %d; input: %d", maxValue, value)
@@ -26,6 +38,13 @@ type IntInterface interface {
 
 type IntValidator struct{}
 
+// validateMinMax проверяет значение на соответствие минимальному или максимальному значению.
+// Входные параметры:
+// value - значение для проверки
+// condName - имя условия (min или max)
+// condValue - значение условия
+// Возвращаемое значение:
+// error - ошибка, если значение не соответствует условию
 func (iv IntValidator) validateMinMax(value int64, condName string, condValue string) error {
 	var checkFunc func(int64, int64) error = nil
 	switch condName {
@@ -44,6 +63,12 @@ func (iv IntValidator) validateMinMax(value int64, condName string, condValue st
 	return nil
 }
 
+// validateIn проверяет, что значение находится в заданном диапазоне.
+// Входные параметры:
+// value - значение для проверки
+// condValue - диапазон значений. Пример: 1,5 - от 1 включительно до 5 включительно
+// Возвращаемое значение:
+// error - ошибка, если значение не находится в заданном диапазоне
 func (iv IntValidator) validateIn(value int64, condValue string) error {
 	split := strings.Split(condValue, ",")
 	split_len := len(split)
@@ -64,6 +89,13 @@ func (iv IntValidator) validateIn(value int64, condValue string) error {
 	return nil
 }
 
+// Validate проверяет значение типа int* на соответствие заданному условию.
+// Входные параметры:
+// fieldValue - значение для проверки
+// condName - имя условия
+// condValue - значение условия
+// Возвращаемое значение:
+// error - ошибка, если значение не соответствует условию
 func (iv IntValidator) Validate(fieldValue IntInterface, condName string, condValue string) error {
 	var err error = nil
 	value := fieldValue.Int()
