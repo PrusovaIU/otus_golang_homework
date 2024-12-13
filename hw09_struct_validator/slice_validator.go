@@ -22,7 +22,9 @@ func (sv SliceValidator) Validate(fieldValue reflect.Value, fieldType reflect.St
 	for i := 0; i < fieldValue.Len(); i++ {
 		elValue := fieldValue.Index(i)
 		err := sv.ElementValidator.Validate(elValue, fieldType.Type.Elem().Kind(), fmt.Sprintf("%s[%d]", fieldType.Name, i), tag)
-		errs = append(errs, err)
+		if err.IsErr() {
+			errs = append(errs, err)
+		}
 	}
 	return errs
 }
