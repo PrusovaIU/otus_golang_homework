@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	validationErrs "github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/errors"
 	"github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/types_validators"
 )
 
@@ -53,9 +54,9 @@ func (ev ElementValidator) parseTag(tag string) (string, string, error) {
 // tag - тег валидации
 // Возвращаемое значение:
 // ValidationError - структура с информацией о возможной ошибке валидации
-func (ev ElementValidator) Validate(fieldValue reflect.Value, fieldType reflect.Kind, fieldName string, tag string) ValidationError {
+func (ev ElementValidator) Validate(fieldValue reflect.Value, fieldType reflect.Kind, fieldName string, tag string) validationErrs.ValidationError {
 	var err error = nil
-	var validationErr = ValidationError{}
+	var validationErr = validationErrs.ValidationError{}
 	condition, condition_value, err := ev.parseTag(tag)
 	if err == nil {
 		switch fieldType {
@@ -66,7 +67,7 @@ func (ev ElementValidator) Validate(fieldValue reflect.Value, fieldType reflect.
 		}
 	}
 	if err != nil {
-		validationErr = ValidationError{
+		validationErr = validationErrs.ValidationError{
 			Field: fieldName,
 			Err:   err,
 		}

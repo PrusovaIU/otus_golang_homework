@@ -3,10 +3,12 @@ package hw09structvalidator
 import (
 	"errors"
 	"reflect"
+
+	validationErrs "github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/errors"
 )
 
 type FieldValidatorInterface interface {
-	Validate(reflect.Value, reflect.StructField) ValidationErrors
+	Validate(reflect.Value, reflect.StructField) validationErrs.ValidationErrors
 }
 
 type Validator struct {
@@ -19,14 +21,14 @@ func NewValidator() Validator {
 	return v
 }
 
-func (v Validator) Validate(value interface{}) ValidationErrors {
-	errs := []ValidationError{}
+func (v Validator) Validate(value interface{}) validationErrs.ValidationErrors {
+	errs := []validationErrs.ValidationError{}
 
 	vValue := reflect.ValueOf(v)
 	vType := reflect.TypeOf(v)
 
 	if vValue.Kind() != reflect.Struct {
-		errs = append(errs, ValidationError{
+		errs = append(errs, validationErrs.ValidationError{
 			Field: "Root",
 			Err:   errors.New("expected struct"),
 		})

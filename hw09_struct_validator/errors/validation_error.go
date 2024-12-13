@@ -1,4 +1,4 @@
-package hw09structvalidator
+package errors
 
 import (
 	"fmt"

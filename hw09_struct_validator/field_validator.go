@@ -1,9 +1,13 @@
 package hw09structvalidator
 
-import "reflect"
+import (
+	"reflect"
+
+	"github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/errors"
+)
 
 type SliceValidatorInterface interface {
-	Validate(reflect.Value, reflect.StructField, string) ValidationErrors
+	Validate(reflect.Value, reflect.StructField, string) errors.ValidationErrors
 }
 
 type FieldFalidator struct {
@@ -18,9 +22,9 @@ func NewFieldValidator() FieldFalidator {
 	return fv
 }
 
-func (fv FieldFalidator) Validate(fieldValue reflect.Value, fieldType reflect.StructField) ValidationErrors {
+func (fv FieldFalidator) Validate(fieldValue reflect.Value, fieldType reflect.StructField) errors.ValidationErrors {
 	isExported := fieldType.IsExported()
-	var errs ValidationErrors = []ValidationError{}
+	var errs errors.ValidationErrors = []errors.ValidationError{}
 	if isExported {
 		tag := fieldType.Tag.Get("validate")
 		if len(tag) > 0 {
