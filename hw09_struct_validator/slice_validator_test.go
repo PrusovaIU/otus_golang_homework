@@ -1,6 +1,7 @@
 package hw09structvalidator
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
@@ -25,13 +26,33 @@ func TestSliceValidator(t *testing.T) {
 	fieldValue := reflect.ValueOf(testStruct).FieldByName("testField")
 	fieldType, _ := reflect.TypeOf(testStruct).FieldByName("testField")
 
-	elementValidatorMock := mocks.NewElementValidatorInterface(t)
-	elementValidatorMock.On("Validate", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(validationErrs.ValidationError{})
+	tasks := []struct {
+		name             string
+		validationResult validationErrs.ValidationError
+	}{
+		// {name: "test_success", validationResult: validationErrs.ValidationError{}},
+		{name: "test_errors", validationResult: validationErrs.ValidationError{
+			Field: "test",
+			Err:   errors.New("Test error"),
+		}},
+	}
 
-	sv := SliceValidator{}
-	sv.ElementValidator = elementValidatorMock
+	for _, tc := range tasks {
+		t.Run(tc.name, func(t *testing.T) {
+			elementValidatorMock := mocks.NewElementValidatorInterface(t)
+			elementValidatorMock.On("Validate", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.validationResult)
 
-	errs := sv.Validate(fieldValue, fieldType, "tag")
-	require.Len(t, errs, 0)
-	require.Equal(t, len(elementValidatorMock.Calls), len(testSlice))
+			sv := SliceValidator{}
+			sv.ElementValidator = elementValidatorMock
+
+			errs := sv.Validate(fieldValue, fieldType, "tag")
+			if tc.validationResult.IsErr() {
+				require.Len(t, errs, len(testSlice))
+			} else {
+				require.Len(t, errs, 0)
+			}
+			require.Equal(t, len(elementValidatorMock.Calls), len(testSlice))
+		})
+
+	}
 }

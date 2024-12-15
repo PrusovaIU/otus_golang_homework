@@ -17,6 +17,13 @@ func NewSliceValidator() SliceValidator {
 	return sv
 }
 
+// Validate проверяет каждый элементы слайса на соответствие заданным условиям.
+// Входные параметры:
+// fieldValue - значение поля структуры
+// fieldType - тип поля структуры
+// tag - тег валидации
+// Возвращаемое значение:
+// errs - список ошибок валидацииS
 func (sv SliceValidator) Validate(fieldValue reflect.Value, fieldType reflect.StructField, tag string) errors.ValidationErrors {
 	var errs errors.ValidationErrors = []errors.ValidationError{}
 	for i := 0; i < fieldValue.Len(); i++ {
