@@ -10,23 +10,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestFieldValidator(t *testing.T) {
-	elementTasks := []struct {
+func TestFieldValidatorElement(t *testing.T) {
+	type TestElementStruct struct {
+		testValue string `validate:"len:4"`
+	}
+
+	tasks := []struct {
 		name           string
 		validateResult validationErrs.ValidationError
 	}{
 		{name: "test", validateResult: validationErrs.ValidationError{}},
-		{name: "test", validateResult: validationErrs.ValidationError{
+		{name: "test_err", validateResult: validationErrs.ValidationError{
 			Field: "testErr",
 			Err:   errors.New("testErr"),
 		},
 		},
 	}
-	for _, tc := range elementTasks {
-		t.Run(tc.name, func(t *testing.T) {
-			type TestElementStruct struct {
-				testValue string `validate:"len:4"`
-			}
+
+	for _, tc := range tasks {
+		t.Run(tc.name+"element", func(t *testing.T) {
+
 			testStruct := TestElementStruct{testValue: "test"}
 			fieldValue := reflect.ValueOf(testStruct).FieldByName("testValue")
 			fieldType, _ := reflect.TypeOf(testStruct).FieldByName("testValue")
@@ -39,6 +42,47 @@ func TestFieldValidator(t *testing.T) {
 
 			errs := fv.Validate(fieldValue, fieldType)
 			if tc.validateResult.IsErr() {
+				require.Len(t, errs, 1)
+			} else {
+				require.Len(t, errs, 0)
+			}
+		})
+	}
+}
+
+func TestFieldValidatorSlice(t *testing.T) {
+	type TestSliceStrunct struct {
+		testValue []string `validate:"len:4"`
+	}
+
+	tasks := []struct {
+		name           string
+		validateResult validationErrs.ValidationErrors
+	}{
+		{name: "test", validateResult: []validationErrs.ValidationError{}},
+		{name: "test_err", validateResult: []validationErrs.ValidationError{
+			{
+				Field: "testErr",
+				Err:   errors.New("testErr"),
+			},
+		}},
+	}
+
+	for _, tc := range tasks {
+		t.Run(tc.name+"slice", func(t *testing.T) {
+
+			testStruct := TestSliceStrunct{testValue: []string{"test"}}
+			fieldValue := reflect.ValueOf(testStruct).FieldByName("testValue")
+			fieldType, _ := reflect.TypeOf(testStruct).FieldByName("testValue")
+
+			sliceValidatorMock := mocks.NewSliceValidatorInterface(t)
+			sliceValidatorMock.EXPECT().Validate(fieldValue, fieldType, "len:4").Return(tc.validateResult)
+
+			fv := FieldValidator{}
+			fv.SliceValidator = sliceValidatorMock
+
+			errs := fv.Validate(fieldValue, fieldType)
+			if len(tc.validateResult) != 0 {
 				require.Len(t, errs, 1)
 			} else {
 				require.Len(t, errs, 0)

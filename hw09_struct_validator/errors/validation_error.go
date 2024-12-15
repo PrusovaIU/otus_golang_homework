@@ -15,7 +15,7 @@ func (v ValidationError) Error() string {
 }
 
 func (v ValidationError) IsErr() bool {
-	return v.Err == nil
+	return v.Err != nil
 }
 
 type ValidationErrors []ValidationError

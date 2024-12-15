@@ -22,6 +22,12 @@ func NewFieldValidator() FieldValidator {
 	return fv
 }
 
+// Validate проверяет значение поля структуры на соответствие заданному условию.
+// Входные параметры:
+// fieldValue - значение поля
+// fieldType - тип поля
+// Возвращаемое значение:
+// errors.ValidationErrors - список ошибок валидации
 func (fv FieldValidator) Validate(fieldValue reflect.Value, fieldType reflect.StructField) errors.ValidationErrors {
 	var errs errors.ValidationErrors = []errors.ValidationError{}
 	tag := fieldType.Tag.Get("validate")
