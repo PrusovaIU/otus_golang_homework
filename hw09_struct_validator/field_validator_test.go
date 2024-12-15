@@ -12,7 +12,7 @@ import (
 
 func TestFieldValidatorElement(t *testing.T) {
 	type TestElementStruct struct {
-		testValue string `validate:"len:4"`
+		TestValue string `validate:"len:4"`
 	}
 
 	tasks := []struct {
@@ -30,9 +30,9 @@ func TestFieldValidatorElement(t *testing.T) {
 	for _, tc := range tasks {
 		t.Run(tc.name+"element", func(t *testing.T) {
 
-			testStruct := TestElementStruct{testValue: "test"}
-			fieldValue := reflect.ValueOf(testStruct).FieldByName("testValue")
-			fieldType, _ := reflect.TypeOf(testStruct).FieldByName("testValue")
+			testStruct := TestElementStruct{TestValue: "test"}
+			fieldValue := reflect.ValueOf(testStruct).FieldByName("TestValue")
+			fieldType, _ := reflect.TypeOf(testStruct).FieldByName("TestValue")
 
 			elementValidatorMock := mocks.NewElementValidatorInterface(t)
 			elementValidatorMock.EXPECT().Validate(fieldValue, fieldType.Type.Kind(), fieldType.Name, "len:4").Return(tc.validateResult)
@@ -52,7 +52,7 @@ func TestFieldValidatorElement(t *testing.T) {
 
 func TestFieldValidatorSlice(t *testing.T) {
 	type TestSliceStrunct struct {
-		testValue []string `validate:"len:4"`
+		TestValue []string `validate:"len:4"`
 	}
 
 	tasks := []struct {
@@ -71,9 +71,9 @@ func TestFieldValidatorSlice(t *testing.T) {
 	for _, tc := range tasks {
 		t.Run(tc.name+"slice", func(t *testing.T) {
 
-			testStruct := TestSliceStrunct{testValue: []string{"test"}}
-			fieldValue := reflect.ValueOf(testStruct).FieldByName("testValue")
-			fieldType, _ := reflect.TypeOf(testStruct).FieldByName("testValue")
+			testStruct := TestSliceStrunct{TestValue: []string{"test"}}
+			fieldValue := reflect.ValueOf(testStruct).FieldByName("TestValue")
+			fieldType, _ := reflect.TypeOf(testStruct).FieldByName("TestValue")
 
 			sliceValidatorMock := mocks.NewSliceValidatorInterface(t)
 			sliceValidatorMock.EXPECT().Validate(fieldValue, fieldType, "len:4").Return(tc.validateResult)
