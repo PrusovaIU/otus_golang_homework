@@ -1,9 +1,11 @@
 package hw09structvalidator
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
+
+	validationErrs "github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/errors"
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
@@ -11,13 +13,12 @@ type UserRole string
 // Test the function on different structures and other types.
 type (
 	User struct {
-		ID     string `json:"id" validate:"len:36"`
+		ID     string `json:"id" validate:"len:1"`
 		Name   string
-		Age    int             `validate:"min:18|max:50"`
-		Email  string          `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
-		Role   UserRole        `validate:"in:admin,stuff"`
-		Phones []string        `validate:"len:11"`
-		meta   json.RawMessage //nolint:unused
+		Age    int      `validate:"min:18"`
+		Email  string   `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
+		Role   UserRole `validate:"in:admin,stuff"`
+		Phones []string `validate:"len:12"`
 	}
 
 	App struct {
@@ -36,25 +37,68 @@ type (
 	}
 )
 
-func TestValidate(t *testing.T) {
+func TestValidateSuccess(t *testing.T) {
 	tests := []struct {
+		name        string
 		in          interface{}
-		expectedErr error
+		expectedErr validationErrs.ValidationErrors
 	}{
 		{
-			// Place your code here.
+			"User",
+			User{
+				ID:     "1",
+				Name:   "John",
+				Age:    18,
+				Email:  "john@doe.com",
+				Role:   UserRole("admin"),
+				Phones: []string{"111-111-1111", "222-222-2222"},
+			},
+			[]validationErrs.ValidationError{},
 		},
-		// ...
-		// Place your code here.
+		{
+			"App",
+			App{
+				Version: "1.0.0",
+			},
+			[]validationErrs.ValidationError{},
+		},
+		{
+			"Token",
+			Token{
+				Header:    []byte("header"),
+				Payload:   []byte("payload"),
+				Signature: []byte("signature"),
+			},
+			[]validationErrs.ValidationError{},
+		},
+		{
+			"Response",
+			Response{
+				Code: 200,
+			},
+			[]validationErrs.ValidationError{},
+		},
 	}
 
-	for i, tt := range tests {
-		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
-			tt := tt
-			t.Parallel()
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("case %s", tt.name), func(t *testing.T) {
+			// t.Parallel()
 
-			// Place your code here.
-			_ = tt
+			result := Validate(tt.in)
+			require.Equal(t, tt.expectedErr, result)
 		})
 	}
+}
+
+func TestErrors(t *testing.T) {
+	user := User{
+		ID:     "1",
+		Name:   "John",
+		Age:    10,
+		Email:  "john@doe.com",
+		Role:   UserRole("user"),
+		Phones: []string{"111-111-1111", "222-222-2222"},
+	}
+	result := Validate(user)
+	require.Len(t, result, 2)
 }

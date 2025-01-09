@@ -72,8 +72,8 @@ func (iv IntValidator) validateMinMax(value int64, condName string, condValue st
 func (iv IntValidator) validateIn(value int64, condValue string) error {
 	split := strings.Split(condValue, ",")
 	splitLen := len(split)
-	if splitLen != 2 {
-		return fmt.Errorf("condition must have only 2 values, but %d values have been get", splitLen)
+	if splitLen < 1 {
+		return fmt.Errorf("condition must have at least 1 value, but %d values have been get", splitLen)
 	}
 	minValue, err := strconv.Atoi(strings.TrimSpace(split[0]))
 	if err != nil {
