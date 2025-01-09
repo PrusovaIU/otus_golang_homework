@@ -1,4 +1,4 @@
-package main
+package errors
 
 import (
 	"fmt"
@@ -12,6 +12,10 @@ type ValidationError struct {
 
 func (v ValidationError) Error() string {
 	return fmt.Sprintf("\tfield %s %s\n", v.Field, v.Err)
+}
+
+func (v ValidationError) IsErr() bool {
+	return v.Err != nil
 }
 
 type ValidationErrors []ValidationError
