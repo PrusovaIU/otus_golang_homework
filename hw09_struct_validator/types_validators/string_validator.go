@@ -18,15 +18,15 @@ type StringValidator struct{}
 // value - строка для проверки
 // condValue - ожидаемая длина строки
 // Возвращаемое значение:
-// error - ошибка, если длина строки не равна ожидаемой длине
+// error - ошибка, если длина строки не равна ожидаемой длине.
 func (strv StringValidator) validateLen(value string, condValue string) error {
 	expectedLen, err := strconv.Atoi(strings.TrimSpace(condValue))
 	if err != nil {
-		return fmt.Errorf("wrong tag format: %s; input: %s", err, condValue)
+		return fmt.Errorf("wrong tag format: %w; input: %s", err, condValue)
 	}
 	valueLen := len(value)
 	if valueLen != expectedLen {
-		return fmt.Errorf("expected length: %d; real lenght: %d; input: %s", expectedLen, valueLen, value)
+		return fmt.Errorf("expected length: %d; real length: %d; input: %s", expectedLen, valueLen, value)
 	}
 	return nil
 }
@@ -36,11 +36,11 @@ func (strv StringValidator) validateLen(value string, condValue string) error {
 // value - строка для проверки
 // condValue - регулярное выражение
 // Возвращаемое значение:
-// error - ошибка, если строка не соответствует регулярному выражению
+// error - ошибка, если строка не соответствует регулярному выражению.
 func (strv StringValidator) validateRegexp(value string, condValue string) error {
 	condRegexp, err := regexp.Compile(condValue)
 	if err != nil {
-		return fmt.Errorf("invalid regexp: %s; input: %s", err, condValue)
+		return fmt.Errorf("invalid regexp: %w; input: %s", err, condValue)
 	}
 	if !condRegexp.Match([]byte(value)) {
 		return fmt.Errorf("value does not matched to regexp; input: %s", value)
@@ -53,7 +53,7 @@ func (strv StringValidator) validateRegexp(value string, condValue string) error
 // value - значение для проверки
 // condValue - список значений
 // Возвращаемое значение:
-// error - ошибка, если значение не находится в списке
+// error - ошибка, если значение не находится в списке.
 func (strv StringValidator) validateIn(value string, condValue string) error {
 	for _, el := range strings.Split(condValue, ",") {
 		el = strings.TrimSpace(el)
@@ -70,14 +70,14 @@ func (strv StringValidator) validateIn(value string, condValue string) error {
 // condName - имя условия
 // condValue - значение условия
 // Возвращаемое значение:
-// error - ошибка, если значение не соответствует условию
+// error - ошибка, если значение не соответствует условию.
 func (strv StringValidator) Validate(fieldValue StringInterface, condName string, condValue string) error {
-	var err error = nil
+	var err error
 	value := fieldValue.String()
 	switch condName {
-	case len_cond:
+	case lenCond:
 		err = strv.validateLen(value, condValue)
-	case regexp_cond:
+	case regexpCond:
 		err = strv.validateRegexp(value, condValue)
 	case in:
 		err = strv.validateIn(value, condValue)

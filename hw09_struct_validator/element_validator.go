@@ -35,7 +35,7 @@ func NewElementValidator() ElementValidator {
 // Возвращаемые значения:
 // condition - условие валидации
 // value - значение для проверки
-// error - ошибка, если тег валидации имеет неверный формат
+// error - ошибка, если тег валидации имеет неверный формат.
 func (ev ElementValidator) parseTag(tag string) (string, string, error) {
 	split := strings.Split(tag, ":")
 	if len(split) != 2 {
@@ -53,8 +53,12 @@ func (ev ElementValidator) parseTag(tag string) (string, string, error) {
 // fieldName - имя поля
 // tag - тег валидации
 // Возвращаемое значение:
-// ValidationError - структура с информацией о возможной ошибке валидации
-func (ev ElementValidator) Validate(fieldValue reflect.Value, fieldType reflect.Kind, fieldName string, tag string) validationErrs.ValidationError {
+// ValidationError - структура с информацией о возможной ошибке валидации.
+func (ev ElementValidator) Validate(
+	fieldValue reflect.Value,
+	fieldType reflect.Kind,
+	fieldName string,
+	tag string) validationErrs.ValidationError {
 	var err error = nil
 	var validationErr = validationErrs.ValidationError{}
 	condition, condition_value, err := ev.parseTag(tag)

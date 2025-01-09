@@ -35,7 +35,10 @@ func TestFieldValidatorElement(t *testing.T) {
 			fieldType, _ := reflect.TypeOf(testStruct).FieldByName("TestValue")
 
 			elementValidatorMock := mocks.NewElementValidatorInterface(t)
-			elementValidatorMock.EXPECT().Validate(fieldValue, fieldType.Type.Kind(), fieldType.Name, "len:4").Return(tc.validateResult)
+			elementValidatorMock.
+				EXPECT().
+				Validate(fieldValue, fieldType.Type.Kind(), fieldType.Name, "len:4").
+				Return(tc.validateResult)
 
 			fv := FieldValidator{}
 			fv.ElementValidator = elementValidatorMock

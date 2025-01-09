@@ -40,7 +40,9 @@ func TestSliceValidator(t *testing.T) {
 	for _, tc := range tasks {
 		t.Run(tc.name, func(t *testing.T) {
 			elementValidatorMock := mocks.NewElementValidatorInterface(t)
-			elementValidatorMock.On("Validate", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(tc.validationResult)
+			elementValidatorMock.
+				On("Validate", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+				Return(tc.validationResult)
 
 			sv := SliceValidator{}
 			sv.ElementValidator = elementValidatorMock

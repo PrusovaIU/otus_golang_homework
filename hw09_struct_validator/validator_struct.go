@@ -24,8 +24,8 @@ func NewValidator() Validator {
 func (v Validator) Validate(value interface{}) validationErrs.ValidationErrors {
 	errs := []validationErrs.ValidationError{}
 
-	vValue := reflect.ValueOf(v)
-	vType := reflect.TypeOf(v)
+	vValue := reflect.ValueOf(value)
+	vType := reflect.TypeOf(value)
 
 	if vValue.Kind() != reflect.Struct {
 		errs = append(errs, validationErrs.ValidationError{

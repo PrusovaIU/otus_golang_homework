@@ -1,9 +1,9 @@
 package types_validators
 
 const (
-	len_cond    = "len"
-	regexp_cond = "regexp"
-	in          = "in"
-	min         = "min"
-	max         = "max"
+	lenCond    = "len"
+	regexpCond = "regexp"
+	in         = "in"
+	min        = "min"
+	max        = "max"
 )
