@@ -25,7 +25,8 @@ func NewSliceValidator() SliceValidator {
 // Возвращаемое значение:
 // errs - список ошибок валидации.
 func (sv SliceValidator) Validate(
-	fieldValue reflect.Value, fieldType reflect.StructField, tag string) errors.ValidationErrors {
+	fieldValue reflect.Value, fieldType reflect.StructField, tag string,
+) errors.ValidationErrors {
 	var errs errors.ValidationErrors = []errors.ValidationError{}
 	for i := 0; i < fieldValue.Len(); i++ {
 		elValue := fieldValue.Index(i)

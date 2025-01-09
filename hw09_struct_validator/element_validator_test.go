@@ -10,7 +10,6 @@ import (
 )
 
 func TestElementValidate(t *testing.T) {
-
 	int_tasks := []struct {
 		name             string
 		fieldValue       interface{}

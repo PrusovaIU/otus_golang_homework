@@ -20,16 +20,16 @@ func TestFieldValidatorElement(t *testing.T) {
 		validateResult validationErrs.ValidationError
 	}{
 		{name: "test", validateResult: validationErrs.ValidationError{}},
-		{name: "test_err", validateResult: validationErrs.ValidationError{
-			Field: "testErr",
-			Err:   errors.New("testErr"),
-		},
+		{
+			name: "test_err", validateResult: validationErrs.ValidationError{
+				Field: "testErr",
+				Err:   errors.New("testErr"),
+			},
 		},
 	}
 
 	for _, tc := range tasks {
 		t.Run(tc.name+"element", func(t *testing.T) {
-
 			testStruct := TestElementStruct{TestValue: "test"}
 			fieldValue := reflect.ValueOf(testStruct).FieldByName("TestValue")
 			fieldType, _ := reflect.TypeOf(testStruct).FieldByName("TestValue")
@@ -73,7 +73,6 @@ func TestFieldValidatorSlice(t *testing.T) {
 
 	for _, tc := range tasks {
 		t.Run(tc.name+"slice", func(t *testing.T) {
-
 			testStruct := TestSliceStrunct{TestValue: []string{"test"}}
 			fieldValue := reflect.ValueOf(testStruct).FieldByName("TestValue")
 			fieldType, _ := reflect.TypeOf(testStruct).FieldByName("TestValue")

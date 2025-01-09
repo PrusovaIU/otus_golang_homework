@@ -23,7 +23,8 @@ func NewFieldValidator() FieldValidator {
 }
 
 func (fv FieldValidator) checkType(
-	fieldValue reflect.Value, fieldType reflect.StructField, tag string) errors.ValidationErrors {
+	fieldValue reflect.Value, fieldType reflect.StructField, tag string,
+) errors.ValidationErrors {
 	var errs errors.ValidationErrors = []errors.ValidationError{}
 	fieldKind := fieldType.Type.Kind()
 	if fieldKind == reflect.Slice {

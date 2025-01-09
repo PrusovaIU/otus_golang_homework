@@ -5,11 +5,10 @@ import (
 	"reflect"
 	"testing"
 
+	validationErrs "github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/errors"
 	"github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-
-	validationErrs "github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/errors"
 )
 
 func TestSliceValidator(t *testing.T) {
@@ -55,6 +54,5 @@ func TestSliceValidator(t *testing.T) {
 			}
 			require.Equal(t, len(elementValidatorMock.Calls), len(testSlice))
 		})
-
 	}
 }

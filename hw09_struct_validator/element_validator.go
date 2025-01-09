@@ -58,9 +58,10 @@ func (ev ElementValidator) Validate(
 	fieldValue reflect.Value,
 	fieldType reflect.Kind,
 	fieldName string,
-	tag string) validationErrs.ValidationError {
-	var err error = nil
-	var validationErr = validationErrs.ValidationError{}
+	tag string,
+) validationErrs.ValidationError {
+	var err error
+	validationErr := validationErrs.ValidationError{}
 	condition, condition_value, err := ev.parseTag(tag)
 	if err == nil {
 		switch fieldType {
