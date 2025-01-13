@@ -42,9 +42,9 @@ func TestElementValidate(t *testing.T) {
 
 			err := ev.Validate(fieldValue, tc.fieldType, "testField", tag)
 			if tc.validationResult == nil {
-				require.NoError(t, err.Err)
+				require.NoError(t, err)
 			} else {
-				require.Error(t, err.Err)
+				require.Error(t, err)
 			}
 		})
 	}
@@ -71,9 +71,9 @@ func TestElementValidate(t *testing.T) {
 
 			err := ev.Validate(fieldValue, reflect.String, "testField", tag)
 			if tc.validationResult == nil {
-				require.NoError(t, err.Err)
+				require.NoError(t, err)
 			} else {
-				require.Error(t, err.Err)
+				require.Error(t, err)
 			}
 		})
 	}
@@ -85,7 +85,6 @@ func TestElementValidate(t *testing.T) {
 
 		ev := ElementValidator{}
 		err := ev.Validate(fieldValue, reflect.String, fieldName, tag)
-		require.Error(t, err.Err)
-		require.Equal(t, err.Field, fieldName)
+		require.Error(t, err)
 	})
 }

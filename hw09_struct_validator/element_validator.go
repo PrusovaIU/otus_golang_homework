@@ -59,9 +59,8 @@ func (ev ElementValidator) Validate(
 	fieldType reflect.Kind,
 	fieldName string,
 	tag string,
-) validationErrs.ValidationError {
+) error {
 	var err error
-	validationErr := validationErrs.ValidationError{}
 	condition, condition_value, err := ev.parseTag(tag)
 	if err == nil {
 		switch fieldType {
@@ -71,11 +70,11 @@ func (ev ElementValidator) Validate(
 			err = ev.IntValidator.Validate(fieldValue, condition, condition_value)
 		}
 	}
-	if err != nil {
-		validationErr = validationErrs.ValidationError{
+	if err != nil && errors.Is(err, validationErrs.FieldValidationError{}) {
+		return validationErrs.ValidationError{
 			Field: fieldName,
 			Err:   err,
 		}
 	}
-	return validationErr
+	return err
 }
