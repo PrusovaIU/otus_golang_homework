@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	validationErrs "github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/errors"
 )
 
 // checkGreat проверяет, что значение больше минимального значения.
@@ -14,7 +16,10 @@ import (
 // error - ошибка, если значение меньше минимального значения.
 func checkGreat(value, minValue int64) error {
 	if value < minValue {
-		return fmt.Errorf("value must be great than %d; input: %d", minValue, value)
+		// return fmt.Errorf("value must be great than %d; input: %d", minValue, value)
+		return validationErrs.FieldValidationError{
+			Message: fmt.Sprintf("value must be great than %d; input: %d", minValue, value),
+		}
 	}
 	return nil
 }
@@ -27,7 +32,10 @@ func checkGreat(value, minValue int64) error {
 // error - ошибка, если значение больше максимального значения.
 func checkLess(value, maxValue int64) error {
 	if value > maxValue {
-		return fmt.Errorf("value must be less than %d; input: %d", maxValue, value)
+		// return fmt.Errorf("value must be less than %d; input: %d", maxValue, value)
+		return validationErrs.FieldValidationError{
+			Message: fmt.Sprintf("value must be less than %d; input: %d", maxValue, value),
+		}
 	}
 	return nil
 }
@@ -84,7 +92,10 @@ func (iv IntValidator) validateIn(value int64, condValue string) error {
 		return fmt.Errorf("condition must be digit, but %s has been get", split[0])
 	}
 	if value < int64(minValue) || value > int64(maxValue) {
-		return fmt.Errorf("value must be great than %d and less than %d; input: %d", maxValue, maxValue, value)
+		// return fmt.Errorf("value must be great than %d and less than %d; input: %d", maxValue, maxValue, value)
+		return validationErrs.FieldValidationError{
+			Message: fmt.Sprintf("value must be great than %d and less than %d; input: %d", maxValue, maxValue, value),
+		}
 	}
 	return nil
 }

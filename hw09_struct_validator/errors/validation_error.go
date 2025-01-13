@@ -5,6 +5,14 @@ import (
 	"strings"
 )
 
+type FieldValidationError struct {
+	Message string
+}
+
+func (e FieldValidationError) Error() string {
+	return e.Message
+}
+
 type ValidationError struct {
 	Field string
 	Err   error
