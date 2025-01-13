@@ -13,7 +13,7 @@ import (
 // value - значение для проверки
 // minValue - минимальное значение
 // Возвращаемое значение:
-// error - ошибка, если значение меньше минимального значения.
+// error - ошибка, если значение меньше минимального значения, или не удалось валидировать значение.
 func checkGreat(value, minValue int64) error {
 	if value < minValue {
 		// return fmt.Errorf("value must be great than %d; input: %d", minValue, value)
@@ -29,7 +29,7 @@ func checkGreat(value, minValue int64) error {
 // value - значение для проверки
 // maxValue - максимальное значение
 // Возвращаемое значение:
-// error - ошибка, если значение больше максимального значения.
+// error - ошибка, если значение больше максимального значения, или не удалось валидировать значение.
 func checkLess(value, maxValue int64) error {
 	if value > maxValue {
 		// return fmt.Errorf("value must be less than %d; input: %d", maxValue, value)
@@ -52,7 +52,7 @@ type IntValidator struct{}
 // condName - имя условия (min или max)
 // condValue - значение условия
 // Возвращаемое значение:
-// error - ошибка, если значение не соответствует условию.
+// error - ошибка, если значение не соответствует условию, или не удалось валидировать значение.
 func (iv IntValidator) validateMinMax(value int64, condName string, condValue string) error {
 	var checkFunc func(int64, int64) error
 	switch condName {
@@ -76,7 +76,7 @@ func (iv IntValidator) validateMinMax(value int64, condName string, condValue st
 // value - значение для проверки
 // condValue - диапазон значений. Пример: 1,5 - от 1 включительно до 5 включительно
 // Возвращаемое значение:
-// error - ошибка, если значение не находится в заданном диапазоне.
+// error - ошибка, если значение не находится в заданном диапазоне, или не удалось валидировать значение.
 func (iv IntValidator) validateIn(value int64, condValue string) error {
 	split := strings.Split(condValue, ",")
 	splitLen := len(split)
@@ -106,7 +106,7 @@ func (iv IntValidator) validateIn(value int64, condValue string) error {
 // condName - имя условия
 // condValue - значение условия
 // Возвращаемое значение:
-// error - ошибка, если значение не соответствует условию.
+// error - ошибка, если значение не соответствует условию, или не удалось валидировать значение.
 func (iv IntValidator) Validate(fieldValue IntInterface, condName string, condValue string) error {
 	var err error
 	value := fieldValue.Int()
