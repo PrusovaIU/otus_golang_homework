@@ -32,8 +32,8 @@ func (sv SliceValidator) Validate(
 		elValue := fieldValue.Index(i)
 		err := sv.ElementValidator.Validate(
 			elValue, fieldType.Type.Elem().Kind(), fmt.Sprintf("%s[%d]", fieldType.Name, i), tag)
-		if elValidatorErr, ok := err.(*validationErrs.ValidationError); ok {
-			errs = append(errs, *elValidatorErr)
+		if elValidatorErr, ok := err.(validationErrs.ValidationError); ok {
+			errs = append(errs, elValidatorErr)
 		} else if err != nil {
 			return nil, err
 		}
