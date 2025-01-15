@@ -24,10 +24,14 @@ func (_m *SliceValidatorInterface) EXPECT() *SliceValidatorInterface_Expecter {
 }
 
 // Validate provides a mock function with given fields: _a0, _a1, _a2
-func (_m *SliceValidatorInterface) Validate(_a0 reflect.Value, _a1 reflect.StructField, _a2 string) errors.ValidationErrors {
+func (_m *SliceValidatorInterface) Validate(_a0 reflect.Value, _a1 reflect.StructField, _a2 string) (errors.ValidationErrors, error) {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 errors.ValidationErrors
+	var r1 error
+	if rf, ok := ret.Get(0).(func(reflect.Value, reflect.StructField, string) (errors.ValidationErrors, error)); ok {
+		return rf(_a0, _a1, _a2)
+	}
 	if rf, ok := ret.Get(0).(func(reflect.Value, reflect.StructField, string) errors.ValidationErrors); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
@@ -36,7 +40,13 @@ func (_m *SliceValidatorInterface) Validate(_a0 reflect.Value, _a1 reflect.Struc
 		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(reflect.Value, reflect.StructField, string) error); ok {
+		r1 = rf(_a0, _a1, _a2)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // SliceValidatorInterface_Validate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Validate'
@@ -59,12 +69,12 @@ func (_c *SliceValidatorInterface_Validate_Call) Run(run func(_a0 reflect.Value,
 	return _c
 }
 
-func (_c *SliceValidatorInterface_Validate_Call) Return(_a0 errors.ValidationErrors) *SliceValidatorInterface_Validate_Call {
-	_c.Call.Return(_a0)
+func (_c *SliceValidatorInterface_Validate_Call) Return(_a0 errors.ValidationErrors, _a1 error) *SliceValidatorInterface_Validate_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *SliceValidatorInterface_Validate_Call) RunAndReturn(run func(reflect.Value, reflect.StructField, string) errors.ValidationErrors) *SliceValidatorInterface_Validate_Call {
+func (_c *SliceValidatorInterface_Validate_Call) RunAndReturn(run func(reflect.Value, reflect.StructField, string) (errors.ValidationErrors, error)) *SliceValidatorInterface_Validate_Call {
 	_c.Call.Return(run)
 	return _c
 }
