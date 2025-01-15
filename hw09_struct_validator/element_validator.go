@@ -70,10 +70,10 @@ func (ev ElementValidator) Validate(
 			err = ev.IntValidator.Validate(fieldValue, condition, condition_value)
 		}
 	}
-	if err != nil && errors.Is(err, validationErrs.FieldValidationError{}) {
+	if elValidatorErr, ok := err.(validationErrs.FieldValidationError); ok {
 		return validationErrs.ValidationError{
 			Field: fieldName,
-			Err:   err,
+			Err:   elValidatorErr,
 		}
 	}
 	return err
