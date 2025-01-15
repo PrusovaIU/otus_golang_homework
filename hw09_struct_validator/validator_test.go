@@ -84,8 +84,9 @@ func TestValidateSuccess(t *testing.T) {
 		t.Run(fmt.Sprintf("case %s", tt.name), func(t *testing.T) {
 			// t.Parallel()
 
-			result := Validate(tt.in)
+			result, err := Validate(tt.in)
 			require.Equal(t, tt.expectedErr, result)
+			require.NoError(t, err)
 		})
 	}
 }
@@ -99,6 +100,8 @@ func TestErrors(t *testing.T) {
 		Role:   UserRole("user"),
 		Phones: []string{"111-111-1111", "222-222-2222"},
 	}
-	result := Validate(user)
+	result, err := Validate(user)
+	require.NoError(t, err)
 	require.Len(t, result, 2)
+
 }

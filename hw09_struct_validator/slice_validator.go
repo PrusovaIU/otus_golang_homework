@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/errors"
+	validationErrs "github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/errors"
 )
 
 type SliceValidator struct {
@@ -26,15 +26,17 @@ func NewSliceValidator() SliceValidator {
 // errs - список ошибок валидации.
 func (sv SliceValidator) Validate(
 	fieldValue reflect.Value, fieldType reflect.StructField, tag string,
-) errors.ValidationErrors {
-	var errs errors.ValidationErrors = []errors.ValidationError{}
+) (validationErrs.ValidationErrors, error) {
+	var errs validationErrs.ValidationErrors = []validationErrs.ValidationError{}
 	for i := 0; i < fieldValue.Len(); i++ {
 		elValue := fieldValue.Index(i)
 		err := sv.ElementValidator.Validate(
 			elValue, fieldType.Type.Elem().Kind(), fmt.Sprintf("%s[%d]", fieldType.Name, i), tag)
-		if err.IsErr() {
-			errs = append(errs, err)
+		if elValidatorErr, ok := err.(validationErrs.ValidationError); ok {
+			errs = append(errs, elValidatorErr)
+		} else if err != nil {
+			return nil, err
 		}
 	}
-	return errs
+	return errs, nil
 }

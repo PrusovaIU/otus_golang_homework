@@ -3,6 +3,7 @@ package types_validators
 import (
 	"testing"
 
+	validationErrs "github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/errors"
 	"github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/types_validators/mocks"
 	"github.com/stretchr/testify/require"
 )
@@ -82,6 +83,7 @@ func TestIntValidatorInvalidValue(t *testing.T) {
 
 			err := IntValidator{}.Validate(fieldValueMock, tc.condName, tc.condValue)
 			require.Error(t, err)
+			require.IsType(t, validationErrs.FieldValidationError{}, err)
 		})
 	}
 }

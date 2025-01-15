@@ -8,7 +8,7 @@ import (
 )
 
 type FieldValidatorInterface interface {
-	Validate(reflect.Value, reflect.StructField) validationErrs.ValidationErrors
+	Validate(reflect.Value, reflect.StructField) (validationErrs.ValidationErrors, error)
 }
 
 type Validator struct {
@@ -21,7 +21,7 @@ func NewValidator() Validator {
 	return v
 }
 
-func (v Validator) Validate(value interface{}) validationErrs.ValidationErrors {
+func (v Validator) Validate(value interface{}) (validationErrs.ValidationErrors, error) {
 	errs := []validationErrs.ValidationError{}
 
 	vValue := reflect.ValueOf(value)
@@ -32,16 +32,19 @@ func (v Validator) Validate(value interface{}) validationErrs.ValidationErrors {
 			Field: "Root",
 			Err:   errors.New("expected struct"),
 		})
-		return errs
+		return errs, nil
 	}
 
 	for i := 0; i < vValue.NumField(); i++ {
 		fieldValue := vValue.Field(i)
 		fieldType := vType.Field(i)
 
-		fieldErrs := v.FieldValidator.Validate(fieldValue, fieldType)
+		fieldErrs, err := v.FieldValidator.Validate(fieldValue, fieldType)
+		if err != nil {
+			return nil, err
+		}
 		errs = append(errs, fieldErrs...)
 	}
 
-	return errs
+	return errs, nil
 }
