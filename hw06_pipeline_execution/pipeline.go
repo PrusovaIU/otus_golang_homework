@@ -34,5 +34,5 @@ func ExecutePipeline(in In, done In, stages ...Stage) Out {
 		out = stage(in)
 		in = out
 	}
-	return out
+	return chanalWrapper(out, done)
 }
