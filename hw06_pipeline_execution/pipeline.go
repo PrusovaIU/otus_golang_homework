@@ -11,16 +11,37 @@ type Stage func(in In) (out Out)
 func chanalWrapper(in In, done In) Bi {
 	chIn := make(Bi)
 	go func() {
-		defer close(chIn)
+		// defer close(chIn)
 		for {
 			select {
 			case <-done:
-				return
+				close(chIn)
+				for {
+					_, ok := <-in
+					if !ok {
+						return
+					}
+				}
 			case value, ok := <-in:
 				if !ok {
+					close(chIn)
 					return
 				}
-				chIn <- value
+				result := false
+				for !result {
+					select {
+					case chIn <- value:
+						result = true
+					case <-done:
+						close(chIn)
+						for {
+							_, ok := <-chIn
+							if !ok {
+								return
+							}
+						}
+					}
+				}
 			}
 		}
 	}()
