@@ -1,17 +1,7 @@
 package hw09structvalidator
 
-type ValidationError struct {
-	Field string
-	Err   error
-}
+import validationErrs "github.com/PrusovaIU/otus_golang_homework/hw09_struct_validator/errors"
 
-type ValidationErrors []ValidationError
-
-func (v ValidationErrors) Error() string {
-	panic("implement me")
-}
-
-func Validate(v interface{}) error {
-	// Place your code here.
-	return nil
+func Validate(v interface{}) (validationErrs.ValidationErrors, error) {
+	return NewValidator().Validate(v)
 }
