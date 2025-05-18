@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -39,6 +38,7 @@ func (c *TCPClient) Connect() error {
 			fmt.Println("Ошибка подключения:", err)
 			return err
 		}
+		fmt.Println("Соединение установлено")
 		c.conn = conn
 		c.conn_scanner = *bufio.NewScanner(conn)
 	} else {
@@ -50,6 +50,7 @@ func (c *TCPClient) Connect() error {
 func (c *TCPClient) write(message []byte, to io.Writer) error {
 	sent_bytes := 0
 	message = append(message, []byte("\n")...)
+	fmt.Println("Отправка сообщения:", string(message))
 	for sent_bytes < len(message) {
 		n, err := to.Write(message[sent_bytes:])
 		if err != nil {
@@ -64,16 +65,12 @@ func (c *TCPClient) Send() error {
 	if c.conn == nil {
 		return fmt.Errorf("не было произведено подключение к серверу. Используйте функцию Connect()")
 	}
+	fmt.Println("Введите сообщение:")
 	if c.in.Scan() {
 		message := c.in.Bytes()
 		return c.write(message, c.conn)
 	}
 	err := c.in.Err()
-	if errors.Is(err, io.EOF) {
-		fmt.Println("Соединение с сервером будет разорвано")
-		c.Close()
-		return nil
-	}
 	return err
 }
 
@@ -83,6 +80,7 @@ func (c *TCPClient) Receive() error {
 	}
 	if c.conn_scanner.Scan() {
 		message := c.conn_scanner.Bytes()
+		fmt.Println("Сообщение от сервера:", string(message))
 		err := c.write(message, &c.out)
 		if err != nil {
 			return err
@@ -101,6 +99,3 @@ func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, ou
 	}
 	return client
 }
-
-// Place your code here.
-// P.S. Author's solution takes no more than 50 lines.
