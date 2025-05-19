@@ -50,7 +50,6 @@ func (c *TCPClient) Connect() error {
 func (c *TCPClient) write(message []byte, to io.Writer) error {
 	sent_bytes := 0
 	message = append(message, []byte("\n")...)
-	fmt.Println("Отправка сообщения:", string(message))
 	for sent_bytes < len(message) {
 		n, err := to.Write(message[sent_bytes:])
 		if err != nil {
@@ -80,7 +79,6 @@ func (c *TCPClient) Receive() error {
 	}
 	if c.conn_scanner.Scan() {
 		message := c.conn_scanner.Bytes()
-		fmt.Println("Сообщение от сервера:", string(message))
 		err := c.write(message, &c.out)
 		if err != nil {
 			return err

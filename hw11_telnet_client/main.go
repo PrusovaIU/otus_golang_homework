@@ -37,6 +37,34 @@ func send_receive(telnet_client TelnetClient) context.Context {
 	return ctx
 }
 
+// func main() {
+// 	c := make(chan os.Signal, 1)
+// 	signal.Notify(c, syscall.SIGINT)
+
+// 	ctx, cancel := context.WithCancel(context.Background())
+
+// 	go func() {
+// 		<-c
+// 		fmt.Println("Получен сигнал SIGINT")
+// 		cancel()
+// 	}()
+
+// 	telnet_client := NewTelnetClient("localhost:4242", 10*time.Second, os.Stdin, os.Stdout)
+// 	if err := telnet_client.Connect(); err != nil {
+// 		fmt.Println(err)
+// 		os.Exit(1)
+// 	}
+
+// 	err_ctx := send_receive(telnet_client)
+
+// 	select {
+// 	case <-err_ctx.Done():
+// 		return
+// 	case <-ctx.Done():
+// 		close_telnet_client(telnet_client, "Выполнение программы завершено")
+// 	}
+// }
+
 func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT)
@@ -55,7 +83,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err_ctx := send_receive(telnet_client)
+	err_ctx := run_client(telnet_client)
 
 	select {
 	case <-err_ctx.Done():
