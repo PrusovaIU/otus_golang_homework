@@ -57,7 +57,6 @@ func (c *TCPClient) Connect() error {
 
 func (c *TCPClient) write(message []byte, to io.Writer) error {
 	sent_bytes := 0
-	// message = append(message, []byte("\n")...)
 	for sent_bytes < len(message) {
 		n, err := to.Write(message[sent_bytes:])
 		if err != nil {
@@ -72,12 +71,6 @@ func (c *TCPClient) Send() error {
 	if c.conn == nil {
 		return fmt.Errorf("не было произведено подключение к серверу. Используйте функцию Connect()")
 	}
-	// fmt.Println("Введите сообщение:")
-	// if c.in.Scan() {
-	// 	message := c.in.Bytes()
-	// 	return c.write(message, c.conn)
-	// }
-	// err := c.in.Err()
 	text, err := c.in.ReadString('\n')
 	fmt.Printf("Send err: %v\n", err)
 	if err == io.EOF || err == io.ErrUnexpectedEOF {
@@ -93,15 +86,6 @@ func (c *TCPClient) Receive() error {
 	if c.conn == nil {
 		return fmt.Errorf("не было произведено подключение к серверу. Используйте функцию Connect()")
 	}
-	// if c.connScanner.Scan() {
-	// 	message := c.connScanner.Bytes()
-	// 	err := c.write(message, &c.out)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	return c.out.Flush()
-	// }
-	// return c.connScanner.Err()
 	text, err := c.connReader.ReadString('\n')
 	fmt.Printf("Recieve err: %v\n", err)
 	if err != nil {
