@@ -25,7 +25,7 @@ func clientGorutine(clientFunc func() error) context.Context {
 	return ctx
 }
 
-func run_client(telnetClient TelnetClient) (context.Context, context.Context) {
+func runClient(telnetClient TelnetClient) (context.Context, context.Context) {
 	sendContext := clientGorutine(telnetClient.Send)
 	receiveContext := clientGorutine(telnetClient.Receive)
 	return sendContext, receiveContext

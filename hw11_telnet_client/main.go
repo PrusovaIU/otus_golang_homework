@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -9,7 +10,7 @@ import (
 	"time"
 )
 
-func main() {
+func run(addr string, timeout time.Duration) {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT)
 
@@ -21,13 +22,13 @@ func main() {
 		cancel()
 	}()
 
-	telnetClient := NewTelnetClient("localhost:4242", 10*time.Second, os.Stdin, os.Stdout)
+	telnetClient := NewTelnetClient(addr, timeout, os.Stdin, os.Stdout)
 	if err := telnetClient.Connect(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	sendCtx, receiveCtx := run_client(telnetClient)
+	sendCtx, receiveCtx := runClient(telnetClient)
 
 	select {
 	case <-sendCtx.Done():
@@ -38,4 +39,15 @@ func main() {
 		fmt.Println("Выполнение программы завершено")
 	}
 	telnetClient.Close()
+}
+
+func main() {
+	timeout := flag.Duration("timeout", 10*time.Second, "таймаут")
+	args := flag.Args()
+	if len(args) != 2 {
+		fmt.Println("Укажите адрес и порт")
+		os.Exit(1)
+	}
+	addr := args[0] + ":" + args[1]
+	run(addr, *timeout)
 }
