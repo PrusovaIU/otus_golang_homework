@@ -37,16 +37,4 @@ func TestClientGorutine(t *testing.T) {
 			require.ErrorIs(t, childCtx.Err(), context.Canceled)
 		})
 	}
-
-	// t.Run("client closed error case", func(t *testing.T) {
-	// 	clientFunc := func() error {
-	// 		return &ClientClosedError{Message: "Соединение закрыто клиентом"}
-	// 	}
-	// 	ctx := clientGorutine(clientFunc)
-	// 	childCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
-	// 	defer cancel()
-	// 	<-childCtx.Done()
-	// 	require.ErrorAs(t, childCtx.Err(), &context.Canceled)
-	// })
-
 }

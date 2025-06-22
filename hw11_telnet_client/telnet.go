@@ -87,7 +87,7 @@ func (c *TCPClient) Receive() error {
 		return fmt.Errorf("не было произведено подключение к серверу. Используйте функцию Connect()")
 	}
 	text, err := c.connReader.ReadString('\n')
-	fmt.Printf("Recieve err: %v\n", err)
+	fmt.Printf("Receive err: %v\n", err)
 	if err != nil {
 		return err
 	}
