@@ -56,13 +56,13 @@ func (c *TCPClient) Connect() error {
 }
 
 func (c *TCPClient) write(message []byte, to io.Writer) error {
-	sent_bytes := 0
-	for sent_bytes < len(message) {
-		n, err := to.Write(message[sent_bytes:])
+	sentBytes := 0
+	for sentBytes < len(message) {
+		n, err := to.Write(message[sentBytes:])
 		if err != nil {
 			return err
 		}
-		sent_bytes += n
+		sentBytes += n
 	}
 	return nil
 }
