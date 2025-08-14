@@ -46,11 +46,8 @@ func (c *TCPClient) Connect() error {
 			fmt.Println("Ошибка подключения:", err)
 			return err
 		}
-		fmt.Println("Соединение установлено")
 		c.conn = conn
 		c.connReader = *bufio.NewReader(conn)
-	} else {
-		fmt.Println("Соединение уже установлено")
 	}
 	return nil
 }
@@ -72,7 +69,6 @@ func (c *TCPClient) Send() error {
 		return fmt.Errorf("не было произведено подключение к серверу. Используйте функцию Connect()")
 	}
 	text, err := c.in.ReadString('\n')
-	fmt.Printf("Send err: %v\n", err)
 	if err == io.EOF || err == io.ErrUnexpectedEOF {
 		return &ClientClosedError{Message: "Соединение закрыто клиентом"}
 	} else if err != nil {
@@ -87,7 +83,6 @@ func (c *TCPClient) Receive() error {
 		return fmt.Errorf("не было произведено подключение к серверу. Используйте функцию Connect()")
 	}
 	text, err := c.connReader.ReadString('\n')
-	fmt.Printf("Receive err: %v\n", err)
 	if err != nil {
 		return err
 	}

@@ -43,6 +43,7 @@ func run(addr string, timeout time.Duration) {
 
 func main() {
 	timeout := flag.Duration("timeout", 10*time.Second, "таймаут")
+	flag.Parse()
 	args := flag.Args()
 	if len(args) != 2 {
 		fmt.Println("Укажите адрес и порт")
