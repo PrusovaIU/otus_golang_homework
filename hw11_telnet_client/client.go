@@ -11,8 +11,7 @@ func clientGorutine(clientFunc func() error) context.Context {
 	go func(clientFunc func() error) {
 		for {
 			err := clientFunc()
-			if err, ok := err.(*ClientClosedError); ok {
-				fmt.Println(err.Error())
+			if _, ok := err.(*ClientClosedError); ok {
 				cancel()
 				return
 			}
