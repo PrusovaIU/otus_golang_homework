@@ -1,9 +1,13 @@
+//go:build !bench
 // +build !bench
 
 package hw10programoptimization
 
 import (
 	"bytes"
+	"encoding/json"
+	"errors"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -36,4 +40,61 @@ func TestGetDomainStat(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, DomainStat{}, result)
 	})
+}
+
+type errorReader struct{}
+
+func (r *errorReader) Read(p []byte) (int, error) {
+	return 0, errors.New("read error")
+}
+
+func TestGetUsers(t *testing.T) {
+
+	tests := []struct {
+		name    string
+		input   io.Reader
+		wantErr bool
+	}{
+		{
+			name: "Success",
+			input: func() io.Reader {
+				users := []User{
+					{Name: "Alice", Email: "alice@example.com"},
+					{Name: "Bob", Email: "bob@example.com"},
+				}
+				var buf bytes.Buffer
+				for i, user := range users {
+					if i > 0 {
+						buf.WriteString("\n")
+					}
+					jsonData, _ := json.Marshal(user)
+					buf.WriteString(string(jsonData))
+				}
+				return &buf
+			}(),
+			wantErr: false,
+		},
+		{
+			name:    "Error_read_error",
+			input:   &errorReader{},
+			wantErr: true,
+		},
+		{
+			name:    "Error_invalid_JSON",
+			input:   bytes.NewBufferString("invalid json line\n{ \"name\": \"Bob\" }"),
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			users, err := getUsers(tt.input)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getUsers() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if !tt.wantErr && len(users) == 0 {
+				t.Error("Expected at least one user, got empty list")
+			}
+		})
+	}
 }
